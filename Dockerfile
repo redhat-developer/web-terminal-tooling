@@ -9,30 +9,64 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-FROM registry.access.redhat.com/ubi8-minimal:8.2
+FROM registry.access.redhat.com/ubi8:8.2
 
-ENV OC_VER=4.5.0-rc.1
-ENV HELM_VER=3.1.3
-ENV ODO_VER=v1.2.2
-ENV TKN_VER=0.9.0
-ENV KN_VER=0.13.2
-ENV JQ_VER=1.6
-ENV RH_PUBKEY_ID=199E2F91FD431D51
-ENV JQ_PUBKEY_ID=4FD701D6FA9B3D2DF5AC935DAF19040C71523402
-ENV OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/clients
+USER 0
 
-RUN microdnf update && microdnf install -y git vim tar
+ENV JQ_VER=1.6 \
+    JQ_PUBKEY_ID=4FD701D6FA9B3D2DF5AC935DAF19040C71523402 \
+    RH_PUBKEY_ID=199E2F91FD431D51 \
+    OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/clients \
+    OC_VER=4.5.0-rc.1 \
+    HELM_VER=3.1.3 \
+    ODO_VER=v1.2.2 \
+    TKN_VER=0.9.0 \
+    KN_VER=0.13.2 \
+    ISTIO_VERSION=1.6.1 \
+    CRW_VERSION=2.1.1-GA \
+    CRW_REVISION=78bf1fd
+
+ENV HOME=/home/user
+
+# NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
+# enable rhel 7 or 8 content sets (from Brew) to resolve jq as rpm
+COPY ./content_set*.repo /etc/yum.repos.d/
+
+RUN mkdir /home/user && \
+    dnf install -y \
+    # bash completion tools
+    bash-completion ncurses pkgconf-pkg-config \
+    # developer tools
+    git wget tar procps jq \
+    # is needed for install yq
+    python2-pip python2-pip-wheel && \
+    dnf -y clean all && \
+    # install yq
+    pip2 install yq && \
+    # enable bash completion in interactive shells
+    echo source /etc/profile.d/bash_completion.sh >> ~/.bashrc
+
+# Install KubeCtx
+RUN git clone https://github.com/ahmetb/kubectx.git /opt/kubectx && \
+    cd /opt/kubectx && git checkout v0.9.0 && \
+    ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx && \
+    ln -s /opt/kubectx/kubens /usr/local/bin/kubens && \
+    COMPDIR=$(pkg-config --variable=completionsdir bash-completion) && \
+    ln -sf /opt/kubectx/completion/kubens.bash $COMPDIR/kubens && \
+    ln -sf /opt/kubectx/completion/kubectx.bash $COMPDIR/kubectx
 
 # Install oc and kubectl
 RUN curl -sSfL --remote-name-all \
     ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}/sha256sum.txt \
-    ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}/sha256sum.txt.sig \ 
+    ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}/sha256sum.txt.sig \
     ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}/openshift-client-linux-${OC_VER}.tar.gz && \
     gpg --recv-keys ${RH_PUBKEY_ID} && gpg --input sha256sum.txt --verify sha256sum.txt.sig && \
     echo "$(grep openshift-client-linux-${OC_VER}.tar.gz sha256sum.txt | cut -d' ' -f1) openshift-client-linux-${OC_VER}.tar.gz" | sha256sum --check --status && \
     tar xzf openshift-client-linux-${OC_VER}.tar.gz -C /usr/local/bin oc kubectl && \
     rm openshift-client-linux-${OC_VER}.tar.gz && \
-    rm sha256sum.txt sha256sum.txt.sig
+    rm sha256sum.txt sha256sum.txt.sig && \
+    kubectl completion bash > $(pkg-config --variable=completionsdir bash-completion)/kubectl && \
+    oc completion bash > $(pkg-config --variable=completionsdir bash-completion)/oc
 
 # Install helm
 RUN curl -sSfL --remote-name-all \
@@ -65,17 +99,25 @@ RUN curl -sSfL --remote-name-all \
     ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}/sha256sum.txt \
     ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}/kn-linux-amd64-${KN_VER}.tar.gz && \
     echo "$(grep kn-linux-amd64-${KN_VER}.tar.gz sha256sum.txt | cut -d' ' -f1) kn-linux-amd64-${KN_VER}.tar.gz" | sha256sum --check --status && \
-    tar xzf kn-linux-amd64-${KN_VER}.tar.gz -C /usr/local/bin ./kn && chmod +x /usr/local/bin/kn && \ 
+    tar xzf kn-linux-amd64-${KN_VER}.tar.gz -C /usr/local/bin ./kn && chmod +x /usr/local/bin/kn && \
     rm kn-linux-amd64-${KN_VER}.tar.gz && \
-    rm sha256sum.txt 
+    rm sha256sum.txt
 
-# Install jq
-RUN curl -sSfL --remote-name-all \
-    https://github.com/stedolan/jq/releases/download/jq-${JQ_VER}/jq-linux64 \
-    https://raw.githubusercontent.com/stedolan/jq/master/sig/v${JQ_VER}/sha256sum.txt \
-    https://raw.githubusercontent.com/stedolan/jq/master/sig/v${JQ_VER}/jq-linux64.asc && \
-    gpg --recv-keys ${JQ_PUBKEY_ID} && gpg --verify jq-linux64.asc && \
-    echo "$(grep jq-linux64 sha256sum.txt | cut -d' ' -f1) jq-linux64" | sha256sum --check --status && \
-    mv jq-linux64 /usr/local/bin/jq && chmod +x /usr/local/bin/jq && \
-    rm sha256sum.txt jq-linux64.asc
-    
+# Install crwctl
+RUN wget -O- https://github.com/redhat-developer/codeready-workspaces-chectl/releases/download/${CRW_VERSION}-${CRW_REVISION}/codeready-workspaces-${CRW_VERSION}-crwctl-linux-x64.tar.gz \
+  | tar xvz -C /opt/ && \
+  ln -s /opt/crwctl/bin/crwctl /usr/local/bin/crwctl && \
+  printf "$(crwctl autocomplete:script bash)" >> ~/.bashrc
+
+# Install istio
+RUN cd /opt && \
+  curl -L https://istio.io/downloadIstio | sh - && \
+  ln -s /opt/istio-${ISTIO_VERSION}/bin/istio /usr/local/bin/istio
+
+# Change permissions to let any arbitrary user
+RUN for f in "${HOME}" "/etc/passwd"; do \
+      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+      chmod -R g+rwX ${f}; \
+    done
+ADD etc/entrypoint.sh /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
