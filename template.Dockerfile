@@ -9,8 +9,8 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-#@local FROM registry.access.redhat.com/ubi8:8.2
-#@Brew FROM ubi8:8.2
+#@local FROM registry.access.redhat.com/ubi8-minimal:8.2
+#@Brew FROM ubi8-minimal:8.2
 USER 0
 ENV HOME=/home/user
 
@@ -20,17 +20,12 @@ ENV HOME=/home/user
 #@local COPY ./content_set*.repo /etc/yum.repos.d/
 
 RUN mkdir /home/user && \
-    dnf install -y \
+    microdnf install -y \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config \
     # developer tools
-    git wget procps \
-    # is needed for install yq
-    python2-pip python2-pip-wheel && \
-    dnf -y clean all && \
-    # install yq
-    pip2 install yq && \
-    # enable bash completion in interactive shells
+    curl git procps && \
+    microdnf -y clean all && \
     echo source /etc/profile.d/bash_completion.sh >> ~/.bashrc
 
 COPY .container-root/opt/. /opt
