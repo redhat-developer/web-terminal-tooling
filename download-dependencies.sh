@@ -7,24 +7,11 @@ rm -rf .container-root
 mkdir -p .container-root/opt
 mkdir -p .container-root/usr/local/bin
 
-export CRW_VERSION=2.1.1-GA
-export CRW_REVISION=78bf1fd
-echo "Dowloading CRW ${CRW_VERSION}"
-# Install crwctl
-wget -q -O- https://github.com/redhat-developer/codeready-workspaces-chectl/releases/download/${CRW_VERSION}-${CRW_REVISION}/codeready-workspaces-${CRW_VERSION}-crwctl-linux-x64.tar.gz \
-  | tar xz -C ./.container-root/opt
-
 export KUBECTX_VERSION=v0.9.0
 echo "Dowloading Kubectx ${KUBECTX_VERSION}"
 mkdir -p ./.container-root/opt/kubectx
 wget -q -O- https://github.com/ahmetb/kubectx/archive/${KUBECTX_VERSION}.tar.gz | \
   tar xz --strip-components=1 -C ./.container-root/opt/kubectx
-
-ISTIO_VERSION=1.6.1
-echo "Dowloading ISTIO ${ISTIO_VERSION}"
-mkdir -p ./.container-root/opt/istio
-wget -q -O- https://github.com/istio/istio/releases/download/${ISTIO_VERSION}/istio-${ISTIO_VERSION}-linux-amd64.tar.gz | \
-  tar xz --strip-components=1 -C ./.container-root/opt/istio
 
 RH_PUBKEY_ID=199E2F91FD431D51
 OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/clients
