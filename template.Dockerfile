@@ -24,13 +24,9 @@ RUN mkdir /home/user && \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config \
     # developer tools
-    curl git procps \
-    # is needed for install yq
-    python2-pip python2-pip-wheel && \
+    curl git procps && \
     microdnf -y clean all && \
-    # install yq
-    pip2 install yq && \
-    # # enable bash completion in interactive shells
+    # enable bash completion in interactive shells
     echo source /etc/profile.d/bash_completion.sh >> ~/.bashrc
 
 COPY .container-root/opt/. /opt
