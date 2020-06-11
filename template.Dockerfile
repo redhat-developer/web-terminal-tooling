@@ -24,24 +24,26 @@ RUN mkdir /home/user && \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config \
     # developer tools
-    curl git procps && \
+    curl git procps \
+    # is needed for install yq
+    python2-pip python2-pip-wheel && \
     microdnf -y clean all && \
+    # install yq
+    pip2 install yq && \
+    # # enable bash completion in interactive shells
     echo source /etc/profile.d/bash_completion.sh >> ~/.bashrc
 
 COPY .container-root/opt/. /opt
 COPY .container-root/usr/local/bin/. /usr/local/bin/
-RUN ln -s /opt/crwctl/bin/crwctl /usr/local/bin/crwctl && \
-    printf "$(crwctl autocomplete:script bash)\n\n" >> ~/.bashrc && \
-    # Install istio
-    ln -s /opt/istio/bin/istioctl /usr/local/bin/istioctl && \
-    echo source /opt/istio/tools/istioctl.bash >> ~/.bashrc  && \
-    # Install kubectx
+# Propagate tools to path and install bash autocompletion
+RUN \
+    # Kubectx & Kubens
     ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx && \
     ln -s /opt/kubectx/kubens /usr/local/bin/kubens && \
     COMPDIR=$(pkg-config --variable=completionsdir bash-completion) && \
     ln -sf /opt/kubectx/completion/kubens.bash $COMPDIR/kubens && \
     ln -sf /opt/kubectx/completion/kubectx.bash $COMPDIR/kubectx && \
-    # Install oc & kubectl
+    # Install oc & kubectl & odo && kn && helm && tkn
     kubectl completion bash > $COMPDIR/kubectl && \
     oc completion bash > $COMPDIR/oc && \
     printf "complete -C /usr/local/bin/odo odo\n\n" >> ~/.bashrc && \
