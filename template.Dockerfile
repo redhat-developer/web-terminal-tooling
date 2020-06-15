@@ -1,25 +1,14 @@
-# Copyright (c) 2020 Red Hat, Inc.
-# This program and the accompanying materials are made
-# available under the terms of the Eclipse Public License 2.0
-# which is available at https://www.eclipse.org/legal/epl-2.0/
-#
-# SPDX-License-Identifier: EPL-2.0
-#
-# Contributors:
-#   Red Hat, Inc. - initial API and implementation
-#
-
 #@local FROM registry.access.redhat.com/ubi8-minimal:8.2
 #@Brew FROM ubi8-minimal:8.2
 USER 0
 ENV HOME=/home/user
+WORKDIR /home/user
 
 # NOTE: uncommented for local build.
-# Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
-# enable rhel 7 or 8 content sets (from Brew) to resolve jq and bash-completion as rpm
+# Enable rhel 7 or 8 content sets (from Brew) to resolve jq and bash-completion as rpm
 #@local COPY ./content_set*.repo /etc/yum.repos.d/
 
-RUN mkdir /home/user && \
+RUN mkdir -p /home/user && \
     microdnf install -y \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config \
@@ -55,3 +44,25 @@ RUN for f in "${HOME}" "/etc/passwd"; do \
 ADD etc/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT [ "/entrypoint.sh" ]
+
+ENV SUMMARY="Web Terminal - Tooling container" \
+    DESCRIPTION="Web Terminal - Tooling container" \
+    PRODNAME="web-terminal" \
+    COMPNAME="web-terminal-tooling"
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="$DESCRIPTION" \
+      io.openshift.tags="$PRODNAME,$COMPNAME" \
+      com.redhat.component="$PRODNAME-$COMPNAME-container" \
+      name="$PRODNAME/$COMPNAME" \
+      version="4.0" \
+      license="EPLv2" \
+      maintainer="Serhii Leshchenko <sleshche@redhat.com>" \
+      io.openshift.expose-services="" \
+      usage=""
+
+LABEL OC_VERSION="" \
+  KUBECTL_VERSION="" \
+  ODO_VERSION="" \
