@@ -64,4 +64,4 @@ LABEL summary="$SUMMARY" \
 
 LABEL OC_VERSION="" \
       KUBECTL_VERSION="" \
-      ODO_VERSION="" \
+      ODO_VERSION=""
