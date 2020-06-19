@@ -18,8 +18,7 @@ RUN mkdir -p /home/user && \
     # enable bash completion in interactive shells
     echo source /etc/profile.d/bash_completion.sh >> ~/.bashrc
 
-COPY .container-root/opt/. /opt
-COPY .container-root/usr/local/bin/. /usr/local/bin/
+ADD container-root.tgz /
 # Propagate tools to path and install bash autocompletion
 RUN \
     # Kubectx & Kubens
@@ -41,7 +40,7 @@ RUN for f in "${HOME}" "/etc/passwd"; do \
       echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
       chmod -R g+rwX ${f}; \
     done
-ADD etc/entrypoint.sh /entrypoint.sh
+COPY etc/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT [ "/entrypoint.sh" ]
 
@@ -64,5 +63,5 @@ LABEL summary="$SUMMARY" \
       usage=""
 
 LABEL OC_VERSION="" \
-  KUBECTL_VERSION="" \
-  ODO_VERSION="" \
+      KUBECTL_VERSION="" \
+      ODO_VERSION="" \

@@ -1,8 +1,10 @@
 #!/bin/sh
 set -e
 
-export USER_ID=$(id -u)
-export GROUP_ID=$(id -g)
+USER_ID=$(id -u)
+GROUP_ID=$(id -g)
+export USER_ID
+export GROUP_ID
 
 if ! whoami >/dev/null 2>&1; then
   echo "${USER_NAME:-user}:x:${USER_ID}:0:${USER_NAME:-user} user:${HOME}:/bin/bash" >> /etc/passwd

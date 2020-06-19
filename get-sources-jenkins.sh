@@ -98,3 +98,5 @@ tar -czf container-root.tgz -C "$CONTAINER_ROOT_RELATIVE_PATH" .
 if [[ "$updateSourcesFlag" = "true" ]]; then
   rhpkg new-sources container-root.tgz
 fi
+
+rm -rf "$CONTAINER_ROOT_DIR"
