@@ -94,9 +94,9 @@ rm -rf "${TMPDIR:?}"/*
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
 cd "$PROJECT_ROOT"
-tar -czf container-root.tgz -C "$CONTAINER_ROOT_RELATIVE_PATH" .
+tar -czf container-root-x86_64.tgz -C "$CONTAINER_ROOT_RELATIVE_PATH" .
 if [[ "$updateSourcesFlag" = "true" ]]; then
-  rhpkg new-sources container-root.tgz
+  rhpkg new-sources container-root-x86_64.tgz
 fi
 
 rm -rf "$CONTAINER_ROOT_DIR"
