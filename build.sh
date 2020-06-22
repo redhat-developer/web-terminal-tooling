@@ -18,7 +18,7 @@ Options:
     --docker
         Use docker instead of podman. Default: use podman
     --update-sources, -u
-        Download dependencies tarball. Default: enabled only if container-root.tgz is not present
+        Download dependencies tarball. Default: enabled only if container-root-x86_64.tgz is not present
 "
 
 function print_usage() {
@@ -56,7 +56,7 @@ function parse_arguments() {
 
 parse_arguments "$@"
 
-if [[ ! -f "container-root.tgz" ]] || [[ "$updateBinariesTgz" == "true" ]]; then
+if [[ ! -f "container-root-x86_64.tgz" ]] || [[ "$updateBinariesTgz" == "true" ]]; then
   echo "Updating locally cached sources tarball"
   ./get-sources-jenkins.sh
 fi
