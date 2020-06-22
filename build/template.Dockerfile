@@ -43,6 +43,7 @@ RUN for f in "${HOME}" "/etc/passwd"; do \
     done
 COPY etc/entrypoint.sh /entrypoint.sh
 
+USER 1001
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 ENV SUMMARY="Web Terminal - Tooling container" \
