@@ -61,7 +61,3 @@ LABEL summary="$SUMMARY" \
       maintainer="Serhii Leshchenko <sleshche@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
-
-LABEL OC_VERSION="" \
-      KUBECTL_VERSION="" \
-      ODO_VERSION=""

@@ -18,6 +18,6 @@ if [[ ! -f "container-root.tgz" ]] || [[ "$updateBinariesTgz" == "true" ]]; then
   ./get-sources-jenkins.sh
 fi
 
-./build/generate_dockerfile.sh --mode "${MODE}" --output "complete.Dockerfile"
+./build/generate_dockerfile.sh --mode "${MODE}" --output "./build/complete.Dockerfile"
 
-${TOOL} build -t "${WEB_TERMINAL_TOOLING_IMG}" --file complete.Dockerfile .
+${TOOL} build -t "${WEB_TERMINAL_TOOLING_IMG}" --file ./build/complete.Dockerfile .

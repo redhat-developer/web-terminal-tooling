@@ -16,7 +16,7 @@ Includes tools that a Kubernetes and OpenShift developer would like find in thei
 
 ### How to build
 
-There is [template.Dockerfile](https://github.com/redhat-developer/web-terminal-tooling/blob/installTools/template.Dockerfile) that is processed by build.sh script to apply needed changes before build. So, execute the following but before uncomment configuration params if needed.
+There is [template.Dockerfile](https://github.com/redhat-developer/web-terminal-tooling/blob/master/build/template.Dockerfile) that is processed by build.sh script to apply needed changes before build. So, execute the following but before uncomment configuration params if needed.
 
 ```bash
 # TOOL=podman # can be docker

@@ -7,7 +7,7 @@ SCRIPT_DIR=${PROJECT_ROOT:-$(cd "$(dirname "$0")" || exit; pwd)}
 BREW_BUILD_MODE="brew"
 LOCAL_BUILD_MODE="local"
 
-outputFilename="complete.Dockerfile"
+outputFilename="./build/complete.Dockerfile"
 dockerfileMode="local"
 
 function set_mode() {
