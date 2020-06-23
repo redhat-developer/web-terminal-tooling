@@ -14,7 +14,7 @@ RUN mkdir -p /home/user && \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config \
     # developer tools
-    curl git procps && \
+    curl git procps mc && \
     microdnf -y clean all && \
     # enable bash completion in interactive shells
     echo source /etc/profile.d/bash_completion.sh >> ~/.bashrc
