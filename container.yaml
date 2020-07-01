@@ -1,0 +1,5 @@
+---
+# See more about format https://osbs.readthedocs.io/en/latest/users.html#image-configuration
+platforms:
+  only:
+  - x86_64
