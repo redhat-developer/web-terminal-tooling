@@ -49,7 +49,7 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 ENV SUMMARY="Web Terminal - Tooling container" \
     DESCRIPTION="Web Terminal - Tooling container" \
     PRODNAME="web-terminal" \
-    COMPNAME="web-terminal-tooling"
+    COMPNAME="tooling"
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
