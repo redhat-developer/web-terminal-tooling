@@ -3,3 +3,8 @@
 platforms:
   only:
   - x86_64
+compose:
+  # configured empty packages makes the compose include all packages
+  # from the Koji build tag of the Koji build target.
+  packages: []
+  pulp_repos: true
