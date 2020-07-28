@@ -33,7 +33,7 @@ RUN \
     oc completion bash > $COMPDIR/oc && \
     printf "complete -C /usr/local/bin/odo odo\n\n" >> ~/.bashrc && \
     kn completion bash > $COMPDIR/kn && \
-    helm completion bash > $COMPDIR/kn && \
+    helm completion bash > $COMPDIR/helm && \
     tkn completion bash > $COMPDIR/tkn
 
 # Change permissions to let any arbitrary user
