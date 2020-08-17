@@ -99,4 +99,16 @@ if [[ "$updateSourcesFlag" = "true" ]]; then
   rhpkg new-sources container-root-x86_64.tgz
 fi
 
+rm -f rh-manifests.txt || true
+{
+  echo "oc ${OC_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
+  echo "kubectl ${OC_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
+  echo "helm ${HELM_VER} ${OPENSHIFT_CLIENTS_URL}/helm/${HELM_VER}"
+  echo "odo ${ODO_VER} ${OPENSHIFT_CLIENTS_URL}/odo/${ODO_VER}"
+  echo "tekton ${TKN_VER} ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}"
+  echo "knative ${KN_VER} ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}"
+  echo "kubectx ${KUBECTX_VERSION} https://github.com/ahmetb/kubectx/tree/${KUBECTX_VERSION}"
+  echo "kubens ${KUBECTX_VERSION} https://github.com/ahmetb/kubectx/tree/${KUBECTX_VERSION}"
+} >> rh-manifests.txt
+
 rm -rf "$CONTAINER_ROOT_DIR"
