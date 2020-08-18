@@ -4,5 +4,5 @@ helm 3.2.3 https://mirror.openshift.com/pub/openshift-v4/clients/helm/3.2.3
 odo v1.2.4 https://mirror.openshift.com/pub/openshift-v4/clients/odo/v1.2.4
 tekton 0.9.0 https://mirror.openshift.com/pub/openshift-v4/clients/pipeline/0.9.0
 knative 0.13.2 https://mirror.openshift.com/pub/openshift-v4/clients/serverless/0.13.2
-kubectx v0.9.1 https://github.com/ahmetb/kubectx
-kubens v0.9.1 https://github.com/ahmetb/kubectx
+kubectx v0.9.1 https://github.com/ahmetb/kubectx/tree/v0.9.1
+kubens v0.9.1 https://github.com/ahmetb/kubectx/tree/v0.9.1
