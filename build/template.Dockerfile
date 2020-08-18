@@ -13,6 +13,8 @@ RUN mkdir -p /home/user && \
     microdnf install -y \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config \
+    # terminal-based editors
+    vi vim nano \
     # developer tools
     curl git procps mc && \
     microdnf -y clean all && \
