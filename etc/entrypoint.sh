@@ -8,7 +8,12 @@ fi
 
 # Setup $PS1 for a consistent and reasonable prompt
 if [ -w "${HOME}" ] && [ -z "$PS1" ] && ! grep -q "PS1" "${HOME}/.bashrc"; then
-  echo "PS1='\s-\v \w \$ '" >> "${HOME}"/.bashrc
+  echo "PS1='\s-\v \w \$ '" >> "${HOME}/.bashrc"
+fi
+
+# Set default editor to vim instead of fallback vi
+if [ -w "${HOME}" ] && ! grep -q "EDITOR" "${HOME}/.bashrc"; then
+  echo "EDITOR=vim" >> "${HOME}/.bashrc"
 fi
 
 # Add current (arbitrary) user to /etc/passwd and /etc/group
