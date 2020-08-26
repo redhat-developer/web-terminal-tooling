@@ -30,3 +30,5 @@ There is [template.Dockerfile](https://github.com/redhat-developer/web-terminal-
 ```bash
 podman run -ti --rm web-terminal-tooling:local bash
 ```
+
+Upstream and downstream are synced via this [job](https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/web-terminal-sync-web-terminal-tooling/)
