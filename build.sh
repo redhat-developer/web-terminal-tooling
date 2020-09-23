@@ -41,6 +41,10 @@ function parse_arguments() {
             updateBinariesTgz="true"
             shift 0
             ;;
+            '--mode')
+            MODE="$2"
+            shift 1
+            ;;
             '--help')
             print_usage
             exit 0
