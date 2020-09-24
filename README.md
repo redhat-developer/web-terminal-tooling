@@ -4,12 +4,12 @@ Default OpenShift Console Web Terminal tooling container.
 
 Includes tools that a Kubernetes and OpenShift developer would like find in their terminal:
 - [jq](https://github.com/stedolan/jq)
-- [oc](https://github.com/openshift/origin) [4.5.3](https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.5.3/)
-- [kubectl](https://github.com/kubernetes/kubectl) [v1.18.2-0-g52c56ce](https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.5.3/)
-- [odo](https://github.com/openshift/odo) [v1.2.4](https://mirror.openshift.com/pub/openshift-v4/clients/odo/v1.2.4/)
-- [helm](https://helm.sh/) [v3.2.3](https://mirror.openshift.com/pub/openshift-v4/clients/helm/3.2.3/)
-- [KNative](https://github.com/knative/client) [v0.13.2](https://mirror.openshift.com/pub/openshift-v4/clients/serverless/0.13.2/)
-- [Tekton CLI](https://github.com/tektoncd/cli) [0.9.0](https://mirror.openshift.com/pub/openshift-v4/clients/pipeline/0.9.0/)
+- [oc](https://github.com/openshift/origin) [4.6.1](https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.6.1/)
+- [kubectl](https://github.com/kubernetes/kubectl) [v1.19.0](https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.6.1/)
+- [odo](https://github.com/openshift/odo) [v2.0.0](https://mirror.openshift.com/pub/openshift-v4/clients/odo/v2.0.0/)
+- [helm](https://helm.sh/) [v3.3.4](https://mirror.openshift.com/pub/openshift-v4/clients/helm/3.3.4/)
+- [KNative](https://github.com/knative/client) [v0.16.1](https://mirror.openshift.com/pub/openshift-v4/clients/serverless/0.16.1/)
+- [Tekton CLI](https://github.com/tektoncd/cli) [0.11.0](https://mirror.openshift.com/pub/openshift-v4/clients/pipeline/0.11.0/)
 - [kubectx & kubens](https://github.com/ahmetb/kubectx) [v0.9.1](https://github.com/ahmetb/kubectx/releases/tag/v0.9.1)
 
 ## Contributing

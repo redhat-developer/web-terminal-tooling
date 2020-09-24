@@ -1,8 +1,8 @@
-oc 4.5.3 https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.5.3
-kubectl 4.5.3 https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.5.3
-helm 3.2.3 https://mirror.openshift.com/pub/openshift-v4/clients/helm/3.2.3
-odo v1.2.4 https://mirror.openshift.com/pub/openshift-v4/clients/odo/v1.2.4
-tekton 0.9.0 https://mirror.openshift.com/pub/openshift-v4/clients/pipeline/0.9.0
-knative 0.13.2 https://mirror.openshift.com/pub/openshift-v4/clients/serverless/0.13.2
+oc 4.6.1 https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.6.1
+kubectl 4.6.1 https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.6.1
+helm 3.3.4 https://mirror.openshift.com/pub/openshift-v4/clients/helm/3.3.4
+odo v2.0.0 https://mirror.openshift.com/pub/openshift-v4/clients/odo/v2.0.0
+tekton 0.11.0 https://mirror.openshift.com/pub/openshift-v4/clients/pipeline/0.11.0
+knative 0.16.1 https://mirror.openshift.com/pub/openshift-v4/clients/serverless/0.16.1
 kubectx v0.9.1 https://github.com/ahmetb/kubectx/tree/v0.9.1
 kubens v0.9.1 https://github.com/ahmetb/kubectx/tree/v0.9.1
