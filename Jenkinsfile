@@ -50,11 +50,6 @@ timeout(120) {
 
           cd ${WORKSPACE}/targetdwn
 
-          # Update the base image
-          curl -L -s -S https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/master/product/updateBaseImages.sh -o /tmp/updateBaseImages.sh
-          chmod +x /tmp/updateBaseImages.sh
-          /tmp/updateBaseImages.sh -b ''' + DWNSTM_BRANCH + '''
-
           # Regenerate the Dockerfile
           ./build/generate_dockerfile.sh -o Dockerfile -m brew
 
@@ -62,6 +57,12 @@ timeout(120) {
           # in https://mojo.redhat.com/docs/DOC-1045187 it says: rhpkg new-sources checks if the file already exists in the cache, so it will not upload the same file twice (this is checked by module name, source file name and checksum).
           # Since all 3 are the same each time we should just be able to update each time and it will only be replaced when the checksum changes
           ./get-sources-jenkins.sh -u
+
+          # Update the base image. We update the base image after regenerating the template so that
+          # the underlying docker image will always be the most updated
+          curl -L -s -S https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/master/product/updateBaseImages.sh -o /tmp/updateBaseImages.sh
+          chmod +x /tmp/updateBaseImages.sh
+          /tmp/updateBaseImages.sh -b ''' + DWNSTM_BRANCH + '''
 
           if [[ $(git diff --name-only) ]]; then # file changed
             git add . -A
