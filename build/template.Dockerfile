@@ -40,8 +40,8 @@ RUN \
 
 # Change permissions to let any arbitrary user
 RUN for f in "${HOME}" "/etc/passwd" "/etc/group"; do \
-      echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
-      chmod -R g+rwX ${f}; \
+    echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+    chmod -R g+rwX ${f}; \
     done
 COPY etc/entrypoint.sh /entrypoint.sh
 
