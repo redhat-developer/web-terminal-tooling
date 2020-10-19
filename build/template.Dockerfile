@@ -1,6 +1,6 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-#@local FROM registry.access.redhat.com/ubi8-minimal:8.2-345
-#@Brew FROM ubi8-minimal:8.2-345
+#@local FROM registry.access.redhat.com/ubi8-minimal:8.2-349
+#@Brew FROM ubi8-minimal:8.2-349
 USER 0
 ENV HOME=/home/user
 WORKDIR /home/user
