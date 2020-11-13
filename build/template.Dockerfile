@@ -17,7 +17,9 @@ RUN mkdir -p /home/user $INITIAL_CONFIG && \
     # terminal-based editors
     vi vim nano \
     # developer tools
-    curl git procps mc jq && \
+    curl git procps mc jq \
+    # other terminal tools
+    xterm-resize && \
     microdnf -y clean all && \
     # enable bash completion in interactive shells
     echo source /etc/profile.d/bash_completion.sh >> "${INITIAL_CONFIG}/.bashrc"
