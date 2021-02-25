@@ -28,15 +28,14 @@ CONTAINER_USR_BIN_DIR=$CONTAINER_ROOT_DIR/usr/local/bin
 rm -rf "${CONTAINER_ROOT_DIR:?}"
 mkdir -p "$CONTAINER_ROOT_DIR" "$CONTAINER_OPT_DIR" "$CONTAINER_USR_BIN_DIR"
 
-OC_VER=4.6.1
-HELM_VER=3.3.4
-ODO_VER=v2.0.0
-TKN_VER=0.11.0
-KN_VER=0.16.1
-KUBECTX_VERSION=v0.9.1
+OC_VER=4.7.0
+HELM_VER=3.5.0
+ODO_VER=v2.0.4
+TKN_VER=0.15.0
+KN_VER=0.19.1
+KUBECTX_VERSION=v0.9.2
 
-RH_PUBKEY_ID=199E2F91FD431D51
-OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/clients
+OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/x86_64/clients
 
 # Work in a /tmp/ directory
 TMPDIR=$(mktemp -d)
@@ -46,18 +45,24 @@ cd "$TMPDIR"
 echo "Downloading oc ${OC_VER} and the corresponding kubectl"
 curl -sSfL --insecure --remote-name-all \
   ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}/sha256sum.txt \
-  ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}/sha256sum.txt.sig \
   ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}/openshift-client-linux-${OC_VER}.tar.gz
-gpg --recv-keys ${RH_PUBKEY_ID} && gpg --input sha256sum.txt --verify sha256sum.txt.sig
 echo "$(grep openshift-client-linux-${OC_VER}.tar.gz sha256sum.txt | cut -d' ' -f1) openshift-client-linux-${OC_VER}.tar.gz" | sha256sum --check --status
 tar xzf openshift-client-linux-${OC_VER}.tar.gz -C "$CONTAINER_USR_BIN_DIR" oc kubectl
+
+KUBECTL_V=$($CONTAINER_USR_BIN_DIR/kubectl version --client=true -o=json | jq -r '.clientVersion.gitVersion
+')
+# Kubectl version has vMajor.Manor.BugFix-Build-GitRevision, like v1.20.1-5-g76a04fc
+# Cut build number and git revision
+KUBECTL_VER=${KUBECTL_V%-*-*}
+echo "Extracted kubectl ${KUBECTL_VER}"
+
 rm -rf "${TMPDIR:?}"/*
 
 echo "Downloading helm ${HELM_VER}"
 curl -sSfL --insecure --remote-name-all \
   ${OPENSHIFT_CLIENTS_URL}/helm/${HELM_VER}/sha256sum.txt \
   ${OPENSHIFT_CLIENTS_URL}/helm/${HELM_VER}/helm-linux-amd64
-echo "$(grep helm-linux-amd64 sha256sum.txt | cut -d' ' -f1) helm-linux-amd64" | sha256sum --check --status
+echo "$(grep helm-linux-amd64$ sha256sum.txt | cut -d' ' -f1) helm-linux-amd64" | sha256sum --check --status
 mv helm-linux-amd64 "$CONTAINER_USR_BIN_DIR/helm"
 rm -rf "${TMPDIR:?}"/*
 
@@ -74,7 +79,7 @@ curl -sSfL --insecure --remote-name-all \
   ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}/sha256sum.txt \
   ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}/tkn-linux-amd64-${TKN_VER}.tar.gz
 echo "$(grep tkn-linux-amd64-${TKN_VER}.tar.gz sha256sum.txt | cut -d' ' -f1) tkn-linux-amd64-${TKN_VER}.tar.gz" | sha256sum --check --status
-tar xzf tkn-linux-amd64-${TKN_VER}.tar.gz -C "$CONTAINER_USR_BIN_DIR" tkn
+tar xzf tkn-linux-amd64-${TKN_VER}.tar.gz -C "$CONTAINER_USR_BIN_DIR" ./tkn
 rm -rf "${TMPDIR:?}"/*
 
 echo "Downloading knative ${KN_VER}"
@@ -102,7 +107,7 @@ fi
 rm -f rh-manifests.txt || true
 {
   echo "oc ${OC_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
-  echo "kubectl ${OC_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
+  echo "kubectl ${KUBECTL_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
   echo "helm ${HELM_VER} ${OPENSHIFT_CLIENTS_URL}/helm/${HELM_VER}"
   echo "odo ${ODO_VER} ${OPENSHIFT_CLIENTS_URL}/odo/${ODO_VER}"
   echo "tekton ${TKN_VER} ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}"
