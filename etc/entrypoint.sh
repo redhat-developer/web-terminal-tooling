@@ -7,13 +7,13 @@ if [ ! -d "${HOME}" ]; then
 fi
 
 # Setup $PS1 for a consistent and reasonable prompt
-if [ -w "${HOME}" ] && [ -z "$PS1" ] && ! grep -q "PS1" "${HOME}/.bashrc"; then
-  echo "PS1='\s-\v \w \$ '" >> "${HOME}/.bashrc"
+if [ -w "${INITIAL_CONFIG}" ] && [ -z "$PS1" ] && ! grep -q "PS1" "${INITIAL_CONFIG}/.bashrc"; then
+  echo "PS1='\s-\v \w \$ '" >> "${INITIAL_CONFIG}/.bashrc"
 fi
 
 # Set default editor to vim instead of fallback vi
-if [ -w "${HOME}" ] && ! grep -q "EDITOR" "${HOME}/.bashrc"; then
-  echo "EDITOR=vim" >> "${HOME}/.bashrc"
+if [ -w "${INITIAL_CONFIG}" ] && ! grep -q "EDITOR" "${INITIAL_CONFIG}/.bashrc"; then
+  echo "EDITOR=vim" >> "${INITIAL_CONFIG}/.bashrc"
 fi
 
 # Add current (arbitrary) user to /etc/passwd and /etc/group
@@ -23,5 +23,7 @@ if ! whoami &> /dev/null; then
     echo "${USER_NAME:-user}:x:$(id -u):" >> /etc/group
   fi
 fi
+
+find "$INITIAL_CONFIG" -mindepth 1 -exec cp -nrp {} "${HOME}/" \;
 
 exec "$@"

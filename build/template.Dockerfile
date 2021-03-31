@@ -3,23 +3,24 @@
 #@Brew FROM ubi8-minimal:8.2-349
 USER 0
 ENV HOME=/home/user
+ENV INITIAL_CONFIG=/tmp/initial_config
 WORKDIR /home/user
 
 # NOTE: uncommented for local build.
 # Enable rhel 7 or 8 content sets (from Brew) to resolve jq and bash-completion as rpm
 #@local COPY ./content_set*.repo /etc/yum.repos.d/
 
-RUN mkdir -p /home/user && \
+RUN mkdir -p /home/user $INITIAL_CONFIG && \
     microdnf install -y \
     # bash completion tools
-    bash-completion ncurses pkgconf-pkg-config \
+    bash-completion ncurses pkgconf-pkg-config findutils \
     # terminal-based editors
     vi vim nano \
     # developer tools
-    curl git procps mc && \
+    curl git procps mc jq && \
     microdnf -y clean all && \
     # enable bash completion in interactive shells
-    echo source /etc/profile.d/bash_completion.sh >> ~/.bashrc
+    echo source /etc/profile.d/bash_completion.sh >> "${INITIAL_CONFIG}/.bashrc"
 
 ADD container-root-x86_64.tgz /
 # Propagate tools to path and install bash autocompletion
@@ -33,13 +34,13 @@ RUN \
     # Install oc & kubectl & odo && kn && helm && tkn
     kubectl completion bash > $COMPDIR/kubectl && \
     oc completion bash > $COMPDIR/oc && \
-    printf "complete -C /usr/local/bin/odo odo\n\n" >> ~/.bashrc && \
+    printf "complete -C /usr/local/bin/odo odo\n\n" >> "${INITIAL_CONFIG}/.bashrc" && \
     kn completion bash > $COMPDIR/kn && \
     helm completion bash > $COMPDIR/helm && \
     tkn completion bash > $COMPDIR/tkn
 
 # Change permissions to let any arbitrary user
-RUN for f in "${HOME}" "/etc/passwd" "/etc/group"; do \
+RUN for f in "${HOME}" "${INITIAL_CONFIG}" "/etc/passwd" "/etc/group"; do \
     echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
     chmod -R g+rwX ${f}; \
     done

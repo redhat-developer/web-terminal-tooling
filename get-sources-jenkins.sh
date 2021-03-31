@@ -49,8 +49,7 @@ curl -sSfL --insecure --remote-name-all \
 echo "$(grep openshift-client-linux-${OC_VER}.tar.gz sha256sum.txt | cut -d' ' -f1) openshift-client-linux-${OC_VER}.tar.gz" | sha256sum --check --status
 tar xzf openshift-client-linux-${OC_VER}.tar.gz -C "$CONTAINER_USR_BIN_DIR" oc kubectl
 
-KUBECTL_V=$($CONTAINER_USR_BIN_DIR/kubectl version --client=true -o=json | jq -r '.clientVersion.gitVersion
-')
+KUBECTL_V=$($CONTAINER_USR_BIN_DIR/kubectl version --client=true -o=json | jq -r '.clientVersion.gitVersion')
 # Kubectl version has vMajor.Manor.BugFix-Build-GitRevision, like v1.20.1-5-g76a04fc
 # Cut build number and git revision
 KUBECTL_VER=${KUBECTL_V%-*-*}
@@ -79,7 +78,7 @@ curl -sSfL --insecure --remote-name-all \
   ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}/sha256sum.txt \
   ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}/tkn-linux-amd64-${TKN_VER}.tar.gz
 echo "$(grep tkn-linux-amd64-${TKN_VER}.tar.gz sha256sum.txt | cut -d' ' -f1) tkn-linux-amd64-${TKN_VER}.tar.gz" | sha256sum --check --status
-tar xzf tkn-linux-amd64-${TKN_VER}.tar.gz -C "$CONTAINER_USR_BIN_DIR" ./tkn
+tar xzf tkn-linux-amd64-${TKN_VER}.tar.gz -C "$CONTAINER_USR_BIN_DIR" tkn
 rm -rf "${TMPDIR:?}"/*
 
 echo "Downloading knative ${KN_VER}"
