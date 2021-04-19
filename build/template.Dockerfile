@@ -8,7 +8,7 @@ WORKDIR /home/user
 
 # NOTE: uncommented for local build.
 # Enable rhel 7 or 8 content sets (from Brew) to resolve jq and bash-completion as rpm
-#@local COPY ./content_set*.repo /etc/yum.repos.d/
+COPY ./content_set*.repo /etc/yum.repos.d/
 
 RUN mkdir -p /home/user $INITIAL_CONFIG && \
     microdnf install -y \
