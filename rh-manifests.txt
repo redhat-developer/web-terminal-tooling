@@ -6,3 +6,4 @@ tekton 0.15.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipel
 knative 0.19.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/0.19.1
 kubectx v0.9.3 https://github.com/ahmetb/kubectx/tree/v0.9.3
 kubens v0.9.3 https://github.com/ahmetb/kubectx/tree/v0.9.3
+rhoas 0.24.1 https://github.com/redhat-developer/app-services-cli/tree/0.24.1

@@ -34,6 +34,7 @@ ODO_VER=v2.0.7
 TKN_VER=0.15.0
 KN_VER=0.19.1
 KUBECTX_VERSION=v0.9.3
+RHOAS_VERSION=0.24.1
 
 OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/x86_64/clients
 
@@ -95,6 +96,12 @@ wget -q -O- https://github.com/ahmetb/kubectx/archive/${KUBECTX_VERSION}.tar.gz 
   tar xz --strip-components=1 -C "$CONTAINER_OPT_DIR/kubectx"
 rm -rf "${TMPDIR:?}"/*
 
+echo "Downloading rhoas ${RHOAS_VERSION}"
+mkdir -p "$CONTAINER_OPT_DIR/rhoas"
+wget -q -O- https://github.com/redhat-developer/app-services-cli/releases/download/${RHOAS_VERSION}/rhoas_${RHOAS_VERSION}_linux_amd64.tar.gz | \
+  tar xz --strip-components=1 -C "$CONTAINER_OPT_DIR/rhoas"
+rm -rf "${TMPDIR:?}"/*
+
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
 cd "$PROJECT_ROOT"
@@ -113,6 +120,7 @@ rm -f rh-manifests.txt || true
   echo "knative ${KN_VER} ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}"
   echo "kubectx ${KUBECTX_VERSION} https://github.com/ahmetb/kubectx/tree/${KUBECTX_VERSION}"
   echo "kubens ${KUBECTX_VERSION} https://github.com/ahmetb/kubectx/tree/${KUBECTX_VERSION}"
+  echo "rhoas ${RHOAS_VERSION} https://github.com/redhat-developer/app-services-cli/tree/${RHOAS_VERSION}"
 } >> rh-manifests.txt
 
 rm -rf "$CONTAINER_ROOT_DIR"
