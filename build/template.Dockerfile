@@ -25,23 +25,22 @@ RUN mkdir -p /home/user $INITIAL_CONFIG && \
 ADD container-root-x86_64.tgz /
 # Propagate tools to path and install bash autocompletion
 RUN \
-    # Kubectx & Kubens & rhoas
+    # Kubectx & Kubens
     ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx && \
     ln -s /opt/kubectx/kubens /usr/local/bin/kubens && \
-    ln -s /opt/rhoas/bin/rhoas /usr/local/bin/rhoas && \
-    echo "" > /usr/local/bin/xdg-open && \
-    chmod +x /usr/local/bin/xdg-open && \
     COMPDIR=$(pkg-config --variable=completionsdir bash-completion) && \
     ln -sf /opt/kubectx/completion/kubens.bash $COMPDIR/kubens && \
     ln -sf /opt/kubectx/completion/kubectx.bash $COMPDIR/kubectx && \
-    # Install oc & kubectl & odo && kn && helm && tkn && rhoas
+    # install rhoas
+    ln -s /opt/rhoas/bin/rhoas /usr/local/bin/rhoas && \
+    rhoas completion bash > $COMPDIR/rhoas && \
+    # Install oc & kubectl & odo && kn && helm && tkn
     kubectl completion bash > $COMPDIR/kubectl && \
     oc completion bash > $COMPDIR/oc && \
     printf "complete -C /usr/local/bin/odo odo\n\n" >> "${INITIAL_CONFIG}/.bashrc" && \
     kn completion bash > $COMPDIR/kn && \
     helm completion bash > $COMPDIR/helm && \
-    tkn completion bash > $COMPDIR/tkn && \
-    rhoas completion bash > $COMPDIR/rhoas
+    tkn completion bash > $COMPDIR/tkn
 
 # Change permissions to let any arbitrary user
 RUN for f in "${HOME}" "${INITIAL_CONFIG}" "/etc/passwd" "/etc/group"; do \
