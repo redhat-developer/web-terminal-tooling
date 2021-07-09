@@ -30,11 +30,11 @@ mkdir -p "$CONTAINER_ROOT_DIR" "$CONTAINER_OPT_DIR" "$CONTAINER_USR_BIN_DIR"
 
 OC_VER=4.7.7
 HELM_VER=3.5.0
-ODO_VER=v2.0.7
-TKN_VER=0.15.0
-KN_VER=0.19.1
-KUBECTX_VERSION=v0.9.3
-RHOAS_VERSION=0.24.1
+ODO_VER=v2.2.3
+TKN_VER=0.17.2
+KN_VER=0.21.0
+KUBECTX_VERSION=v0.9.4
+RHOAS_VERSION=0.25.0
 
 OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/x86_64/clients
 
@@ -85,9 +85,9 @@ rm -rf "${TMPDIR:?}"/*
 echo "Downloading knative ${KN_VER}"
 curl -sSfL --insecure --remote-name-all \
   ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}/sha256sum.txt \
-  ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}/kn-linux-amd64-${KN_VER}.tar.gz
-echo "$(grep kn-linux-amd64-${KN_VER}.tar.gz sha256sum.txt | cut -d' ' -f1) kn-linux-amd64-${KN_VER}.tar.gz" | sha256sum --check --status && \
-tar xzf kn-linux-amd64-${KN_VER}.tar.gz -C "$CONTAINER_USR_BIN_DIR" ./kn
+  ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}/kn-linux-amd64.tar.gz
+echo "$(grep kn-linux-amd64.tar.gz sha256sum.txt | cut -d' ' -f1) kn-linux-amd64.tar.gz" | sha256sum --check --status && \
+tar xzf kn-linux-amd64.tar.gz -C "$CONTAINER_USR_BIN_DIR" kn
 rm -rf "${TMPDIR:?}"/*
 
 echo "Downloading kubectx ${KUBECTX_VERSION}"
@@ -98,10 +98,9 @@ rm -rf "${TMPDIR:?}"/*
 
 echo "Downloading rhoas ${RHOAS_VERSION}"
 mkdir -p "$CONTAINER_OPT_DIR/rhoas"
-wget -q -O- https://github.com/redhat-developer/app-services-cli/releases/download/${RHOAS_VERSION}/rhoas_${RHOAS_VERSION}_linux_amd64.tar.gz | \
+wget -q -O- https://github.com/redhat-developer/app-services-cli/releases/download/v${RHOAS_VERSION}/rhoas_${RHOAS_VERSION}_linux_amd64.tar.gz | \
   tar xz --strip-components=1 -C "$CONTAINER_OPT_DIR/rhoas"
 rm -rf "${TMPDIR:?}"/*
-
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
 cd "$PROJECT_ROOT"
