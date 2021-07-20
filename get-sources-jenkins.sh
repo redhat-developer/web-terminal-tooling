@@ -35,6 +35,7 @@ TKN_VER=0.17.2
 KN_VER=0.21.0
 KUBECTX_VERSION=v0.9.4
 RHOAS_VERSION=0.25.0
+SUBMARINER_VERSION=0.9.1
 
 OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/x86_64/clients
 
@@ -103,6 +104,14 @@ wget -q -O- https://github.com/redhat-developer/app-services-cli/releases/downlo
 rm -rf "${TMPDIR:?}"/*
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
+echo "Downloading submariner ${SUBMARINER_VERSION}"
+mkdir -p "$CONTAINER_OPT_DIR/submariner"
+wget -q -O- https://github.com/submariner-io/submariner-operator/releases/download/v${SUBMARINER_VERSION}/subctl-release-0.9-c2a7e5d-linux-amd64.tar.xz | \
+  tar xJ --strip-components=1 -C "$CONTAINER_OPT_DIR/submariner"
+mv "$CONTAINER_OPT_DIR"/submariner/subctl* "$CONTAINER_OPT_DIR"/submariner/subctl
+rm -rf "${TMPDIR:?}"/*
+chmod -R +x "${CONTAINER_USR_BIN_DIR}"
+
 cd "$PROJECT_ROOT"
 tar -czf container-root-x86_64.tgz -C "$CONTAINER_ROOT_RELATIVE_PATH" .
 if [[ "$updateSourcesFlag" = "true" ]]; then
@@ -120,6 +129,7 @@ rm -f rh-manifests.txt || true
   echo "kubectx ${KUBECTX_VERSION} https://github.com/ahmetb/kubectx/tree/${KUBECTX_VERSION}"
   echo "kubens ${KUBECTX_VERSION} https://github.com/ahmetb/kubectx/tree/${KUBECTX_VERSION}"
   echo "rhoas ${RHOAS_VERSION} https://github.com/redhat-developer/app-services-cli/tree/${RHOAS_VERSION}"
+  echo "submariner ${SUBMARINER_VERSION} https://github.com/submariner-io/submariner-operator/tree/v${SUBMARINER_VERSION}"
 } >> rh-manifests.txt
 
 rm -rf "$CONTAINER_ROOT_DIR"
