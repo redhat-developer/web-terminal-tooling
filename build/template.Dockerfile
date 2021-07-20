@@ -34,6 +34,8 @@ RUN \
     # install rhoas
     ln -s /opt/rhoas/bin/rhoas /usr/local/bin/rhoas && \
     rhoas completion bash > $COMPDIR/rhoas && \
+    # install submariner
+    ln -s /opt/submariner/subctl /usr/local/bin/subctl && \
     # Install oc & kubectl & odo && kn && helm && tkn
     kubectl completion bash > $COMPDIR/kubectl && \
     oc completion bash > $COMPDIR/oc && \

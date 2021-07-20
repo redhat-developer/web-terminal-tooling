@@ -12,6 +12,7 @@ Includes tools that a Kubernetes and OpenShift developer would like find in thei
 - [Tekton CLI](https://github.com/tektoncd/cli) [0.17.2](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipeline/0.17.2)
 - [kubectx & kubens](https://github.com/ahmetb/kubectx) [v0.9.4](https://github.com/ahmetb/kubectx/releases/tag/v0.9.4)
 - [rhoas](https://github.com/redhat-developer/app-services-cli) [0.25.0](https://github.com/redhat-developer/app-services-cli/releases/tag/0.25.0)
+- [submariner](https://github.com/submariner-io/submariner) [v0.9.1](https://github.com/submariner-io/submariner/releases/tag/v0.9.1)
 
 ## Contributing
 
