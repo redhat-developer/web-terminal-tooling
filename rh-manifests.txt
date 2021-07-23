@@ -1,5 +1,5 @@
-oc 4.7.7 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.7.7
-kubectl v1.20.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.7.7
+oc 4.8.2 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.8.2
+kubectl v0.21.0-beta.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.8.2
 helm 3.5.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.5.0
 odo v2.2.3 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v2.2.3
 tekton 0.17.2 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipeline/0.17.2
