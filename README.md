@@ -4,8 +4,8 @@ Default OpenShift Console Web Terminal tooling container.
 
 Includes tools that a Kubernetes and OpenShift developer would like find in their terminal:
 - [jq](https://github.com/stedolan/jq)
-- [oc](https://github.com/openshift/origin) [4.7.7](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.7.7)
-- [kubectl](https://github.com/kubernetes/kubectl) [v1.20.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.7.0)
+- [oc](https://github.com/openshift/origin) [4.8.2](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.8.2)
+- [kubectl](https://github.com/kubernetes/kubectl) [v0.21.0-beta.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.8.2)
 - [odo](https://github.com/openshift/odo) [v2.2.3](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v2.2.3)
 - [helm](https://helm.sh/) [3.5.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.5.0)
 - [KNative](https://github.com/knative/client) [v0.21.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/0.21.0)
