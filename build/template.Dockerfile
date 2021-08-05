@@ -1,6 +1,6 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-#@local FROM registry.access.redhat.com/ubi8-minimal:8.3-298
-#@Brew FROM ubi8-minimal:8.3-298
+#@local FROM registry.access.redhat.com/ubi8-minimal:8.4-205.1626828526
+#@Brew FROM ubi8-minimal:8.4-205.1626828526
 USER 0
 ENV HOME=/home/user
 ENV INITIAL_CONFIG=/tmp/initial_config
