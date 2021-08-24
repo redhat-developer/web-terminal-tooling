@@ -118,7 +118,7 @@ if [[ "$updateSourcesFlag" = "true" ]]; then
   rhpkg new-sources container-root-x86_64.tgz
 fi
 
-rm -f rh-manifests.txt || true
+rm -f rh-manifest.txt || true
 {
   echo "oc ${OC_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
   echo "kubectl ${KUBECTL_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
@@ -130,6 +130,6 @@ rm -f rh-manifests.txt || true
   echo "kubens ${KUBECTX_VERSION} https://github.com/ahmetb/kubectx/tree/${KUBECTX_VERSION}"
   echo "rhoas ${RHOAS_VERSION} https://github.com/redhat-developer/app-services-cli/tree/${RHOAS_VERSION}"
   echo "submariner ${SUBMARINER_VERSION} https://github.com/submariner-io/submariner-operator/tree/v${SUBMARINER_VERSION}"
-} >> rh-manifests.txt
+} >> rh-manifest.txt
 
 rm -rf "$CONTAINER_ROOT_DIR"
