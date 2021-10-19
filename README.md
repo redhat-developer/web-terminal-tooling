@@ -4,15 +4,15 @@ Default OpenShift Console Web Terminal tooling container.
 
 Includes tools that a Kubernetes and OpenShift developer would like find in their terminal:
 - [jq](https://github.com/stedolan/jq)
-- [oc](https://github.com/openshift/origin) [4.8.3](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.8.3)
+- [oc](https://github.com/openshift/origin) [4.9.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.9.0)
 - [kubectl](https://github.com/kubernetes/kubectl) [v0.21.0-beta.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.8.3)
-- [odo](https://github.com/openshift/odo) [v2.2.3](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v2.2.3)
+- [odo](https://github.com/openshift/odo) [v2.3.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v2.3.1)
 - [helm](https://helm.sh/) [3.6.2](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.6.2)
-- [KNative](https://github.com/knative/client) [v0.22.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/0.22.0)
+- [KNative](https://github.com/knative/client) [v0.23.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/0.23.0)
 - [Tekton CLI](https://github.com/tektoncd/cli) [0.19.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipeline/0.17.2)
 - [kubectx & kubens](https://github.com/ahmetb/kubectx) [v0.9.4](https://github.com/ahmetb/kubectx/releases/tag/v0.9.4)
-- [rhoas](https://github.com/redhat-developer/app-services-cli) [0.26.0](https://github.com/redhat-developer/app-services-cli/releases/tag/0.26.0)
-- [submariner](https://github.com/submariner-io/submariner) [v0.9.1](https://github.com/submariner-io/submariner/releases/tag/v0.9.1)
+- [rhoas](https://github.com/redhat-developer/app-services-cli) [0.34.2](https://github.com/redhat-developer/app-services-cli/releases/tag/0.34.2)
+- [submariner](https://github.com/submariner-io/submariner) [v0.10.1](https://github.com/submariner-io/submariner/releases/tag/v0.10.1)
 
 ## Contributing
 

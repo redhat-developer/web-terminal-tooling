@@ -28,14 +28,14 @@ CONTAINER_USR_BIN_DIR=$CONTAINER_ROOT_DIR/usr/local/bin
 rm -rf "${CONTAINER_ROOT_DIR:?}"
 mkdir -p "$CONTAINER_ROOT_DIR" "$CONTAINER_OPT_DIR" "$CONTAINER_USR_BIN_DIR"
 
-OC_VER=4.8.3
+OC_VER=4.9.0
 HELM_VER=3.6.2
-ODO_VER=v2.2.3
+ODO_VER=v2.3.1
 TKN_VER=0.19.1
-KN_VER=0.22.0
+KN_VER=0.23.2
 KUBECTX_VERSION=v0.9.4
-RHOAS_VERSION=0.26.0
-SUBMARINER_VERSION=0.9.1
+RHOAS_VERSION=0.34.2
+SUBMARINER_VERSION=0.10.1
 
 OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/x86_64/clients
 
@@ -106,7 +106,7 @@ chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
 echo "Downloading submariner ${SUBMARINER_VERSION}"
 mkdir -p "$CONTAINER_OPT_DIR/submariner"
-wget -q -O- https://github.com/submariner-io/submariner-operator/releases/download/v${SUBMARINER_VERSION}/subctl-release-0.9-c2a7e5d-linux-amd64.tar.xz | \
+wget -q -O- https://github.com/submariner-io/submariner-operator/releases/download/v${SUBMARINER_VERSION}/subctl-release-0.10-9680181-linux-amd64.tar.xz | \
   tar xJ --strip-components=1 -C "$CONTAINER_OPT_DIR/submariner"
 mv "$CONTAINER_OPT_DIR"/submariner/subctl* "$CONTAINER_OPT_DIR"/submariner/subctl
 rm -rf "${TMPDIR:?}"/*
