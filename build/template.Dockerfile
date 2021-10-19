@@ -32,7 +32,7 @@ RUN \
     ln -sf /opt/kubectx/completion/kubens.bash $COMPDIR/kubens && \
     ln -sf /opt/kubectx/completion/kubectx.bash $COMPDIR/kubectx && \
     # install rhoas
-    ln -s /opt/rhoas/bin/rhoas /usr/local/bin/rhoas && \
+    ln -s /opt/rhoas/rhoas /usr/local/bin/rhoas && \
     rhoas completion bash > $COMPDIR/rhoas && \
     # install submariner
     ln -s /opt/submariner/subctl /usr/local/bin/subctl && \
