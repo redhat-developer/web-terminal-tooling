@@ -24,6 +24,7 @@ if ! whoami &> /dev/null; then
   fi
 fi
 
+# Copy files in $INITIAL_CONFIG to $HOME without overwriting existing files
 find "$INITIAL_CONFIG" -mindepth 1 -exec cp -nrp {} "${HOME}/" \;
 
 exec "$@"
