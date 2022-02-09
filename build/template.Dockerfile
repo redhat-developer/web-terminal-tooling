@@ -2,8 +2,13 @@
 #@local FROM registry.access.redhat.com/ubi8-minimal:8.4-205.1626828526
 #@Brew FROM ubi8-minimal:8.4-205.1626828526
 USER 0
-ENV HOME=/home/user
+
+# the $INITIAL_CONFIG dir stores dotfiles (e.g. .bashrc) for the web terminal, which
+# are copied into $HOME when the container starts up. This allows defining a default
+# configuration that can still be overridden if necessary (the copy does not overwrite
+# existing files)
 ENV INITIAL_CONFIG=/tmp/initial_config
+ENV HOME=/home/user
 WORKDIR /home/user
 
 # NOTE: uncommented for local build.
