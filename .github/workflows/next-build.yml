@@ -1,0 +1,45 @@
+name: Next Container Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  build-next-imgs:
+    runs-on: ubuntu-20.04
+    steps:
+
+    - name: Checkout source code
+      uses: actions/checkout@v2
+
+    - name: Cache tooling binaries
+      uses: actions/cache@v2
+      id: cache-tooling-binaries
+      with:
+        path: ./container-root-x86_64.tgz
+        key: ${{ hashFiles('tooling_versions.env') }}
+
+    - name: Download tooling binaries
+      if: steps.cache-tooling-binaries.outputs.cache-hit != 'true'
+      run: |
+        ./get-sources-jenkins.sh
+
+    - name: Prepare Dockerfile for building
+      run: |
+        ./build/generate_dockerfile.sh --mode local --output ./build/complete.Dockerfile
+
+    - name: Login to quay.io
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
+        registry: quay.io
+
+    - name: Build and push images to quay.io
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./build/complete.Dockerfile
+        push: true
+        tags: quay.io/wto/web-terminal-tooling:next

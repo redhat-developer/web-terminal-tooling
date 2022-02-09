@@ -15,7 +15,7 @@ done
 if [[ "$printHelp" == "true" ]]; then
   echo "Usage:"
   echo "-u, --update-sources - Update lookaside cache"
-  echo "-h, --help - print this message"
+  echo "-h, --help           - Print this message"
   exit 0
 fi
 
@@ -28,14 +28,7 @@ CONTAINER_USR_BIN_DIR=$CONTAINER_ROOT_DIR/usr/local/bin
 rm -rf "${CONTAINER_ROOT_DIR:?}"
 mkdir -p "$CONTAINER_ROOT_DIR" "$CONTAINER_OPT_DIR" "$CONTAINER_USR_BIN_DIR"
 
-OC_VER=4.9.0
-HELM_VER=3.6.2
-ODO_VER=v2.3.1
-TKN_VER=0.19.1
-KN_VER=0.23.2
-KUBECTX_VERSION=v0.9.4
-RHOAS_VERSION=0.34.2
-SUBMARINER_VERSION=0.10.1
+set -o allexport; source tooling_versions.env; set +o allexport
 
 OPENSHIFT_CLIENTS_URL=https://mirror.openshift.com/pub/openshift-v4/x86_64/clients
 
