@@ -1,4 +1,19 @@
 #!/bin/bash
+#
+# This script is used to generate different Dockerfiles from a template stored at
+# template.Dockerfile. This is done by replacing or deleting lines based on a chosen
+# build mode (e.g. "brew", "local"). To convert the template for e.g. the "brew" mode,
+# all lines prefixed with #@brew are uncommented, and all lines prefixed with #@local
+# are deleted, providing a valid Dockerfile that can be used within the Brew build system.
+#
+# The purposes of the different build modes are:
+#   brew:        Dockerfile is meant for use within the brew build system and references resources
+#                that are locally available there.
+#   local:       Dockerfile is meant for a public build and references no non-public resources.
+#
+# Within the template, untagged lines are common to all Dockerfiles. The tags @brew, and @local
+# are used to restrict a particular line to a specific build mode.
+#
 
 set -e
 
@@ -35,14 +50,14 @@ echo "Creating dockerfile named $outputFilename for building in $dockerfileMode"
 
 case $dockerfileMode in
   $BREW_BUILD_MODE)
-  sed -E -e 's/^#@Brew ?//' \
+  sed -E -e 's/^#@brew ?//' \
          -e '/^#@local/d' \
          "${SCRIPT_DIR}/template.Dockerfile" \
          > "${SCRIPT_DIR}/../${outputFilename}"
   ;;
   $LOCAL_BUILD_MODE)
   sed -E -e 's/^#@local ?//' \
-         -e '/^#@Brew/d' \
+         -e '/^#@brew/d' \
          "${SCRIPT_DIR}/template.Dockerfile" \
          > "${SCRIPT_DIR}/../${outputFilename}"
   ;;
