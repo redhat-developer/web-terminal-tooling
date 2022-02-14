@@ -18,6 +18,7 @@ RUN mkdir -p /home/user $INITIAL_CONFIG && \
     # terminal-based editors
     vi vim nano \
     # developer tools
+#@brew     mc \
     curl git procps jq && \
     microdnf -y clean all && \
     # enable bash completion in interactive shells
