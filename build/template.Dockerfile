@@ -11,10 +11,6 @@ ENV INITIAL_CONFIG=/tmp/initial_config
 ENV HOME=/home/user
 WORKDIR /home/user
 
-# NOTE: uncommented for local build.
-# Enable rhel 7 or 8 content sets (from Brew) to resolve jq and bash-completion as rpm
-#@local COPY ./content_set*.repo /etc/yum.repos.d/
-
 RUN mkdir -p /home/user $INITIAL_CONFIG && \
     microdnf install -y \
     # bash completion tools
@@ -22,7 +18,7 @@ RUN mkdir -p /home/user $INITIAL_CONFIG && \
     # terminal-based editors
     vi vim nano \
     # developer tools
-    curl git procps mc jq && \
+    curl git procps jq && \
     microdnf -y clean all && \
     # enable bash completion in interactive shells
     echo source /etc/profile.d/bash_completion.sh >> "${INITIAL_CONFIG}/.bashrc"
