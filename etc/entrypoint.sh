@@ -11,11 +11,6 @@ if [ -w "${INITIAL_CONFIG}" ] && [ -z "$PS1" ] && ! grep -q "PS1" "${INITIAL_CON
   echo "PS1='\s-\v \w \$ '" >> "${INITIAL_CONFIG}/.bashrc"
 fi
 
-# Set default editor to vim instead of fallback vi
-if [ -w "${INITIAL_CONFIG}" ] && ! grep -q "EDITOR" "${INITIAL_CONFIG}/.bashrc"; then
-  echo "EDITOR=vim" >> "${INITIAL_CONFIG}/.bashrc"
-fi
-
 # Add current (arbitrary) user to /etc/passwd and /etc/group
 if ! whoami &> /dev/null; then
   if [ -w /etc/passwd ]; then
