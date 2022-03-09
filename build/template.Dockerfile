@@ -20,9 +20,7 @@ RUN mkdir -p /home/user $INITIAL_CONFIG && \
     # developer tools
 #@brew     mc \
     curl git procps jq && \
-    microdnf -y clean all && \
-    # enable bash completion in interactive shells
-    echo source /etc/profile.d/bash_completion.sh >> "${INITIAL_CONFIG}/.bashrc"
+    microdnf -y clean all
 
 ADD container-root-x86_64.tgz /
 # Propagate tools to path and install bash autocompletion
@@ -41,11 +39,12 @@ RUN \
     # Install oc & kubectl & odo && kn && helm && tkn
     kubectl completion bash > $COMPDIR/kubectl && \
     oc completion bash > $COMPDIR/oc && \
-    printf "complete -C /usr/local/bin/odo odo\n\n" >> "${INITIAL_CONFIG}/.bashrc" && \
     kn completion bash > $COMPDIR/kn && \
     helm completion bash > $COMPDIR/helm && \
     tkn completion bash > $COMPDIR/tkn
 
+COPY etc/initial_config /tmp/initial_config
+COPY tooling_versions.env /tmp/tooling_versions.env
 # Change permissions to let any arbitrary user
 RUN for f in "${HOME}" "${INITIAL_CONFIG}" "/etc/passwd" "/etc/group"; do \
     echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
