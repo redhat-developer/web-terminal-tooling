@@ -1,10 +1,10 @@
-oc 4.9.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.9.0
-kubectl v0.21.0-beta.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.9.0
-helm 3.6.2 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.6.2
+oc 4.10.4 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.10.4
+kubectl v0.23.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.10.4
+helm 3.7.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.7.1
 odo v2.3.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v2.3.1
-tekton 0.19.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipeline/0.19.1
-knative 0.23.2 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/0.23.2
+tekton 0.21.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipeline/0.21.0
+knative 0.26.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/0.26.0
 kubectx v0.9.4 https://github.com/ahmetb/kubectx/tree/v0.9.4
 kubens v0.9.4 https://github.com/ahmetb/kubectx/tree/v0.9.4
-rhoas 0.34.2 https://github.com/redhat-developer/app-services-cli/tree/0.34.2
+rhoas 0.39.0 https://github.com/redhat-developer/app-services-cli/tree/0.39.0
 submariner 0.10.1 https://github.com/submariner-io/submariner-operator/tree/v0.10.1
