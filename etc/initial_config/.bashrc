@@ -5,18 +5,20 @@ function help_message() {
   source /tmp/tooling_versions.env
   # Kubectl version isn't explicitly defined and instead matches oc version
   KUBECTL_VER=$(kubectl version --client --short | sed 's|Client Version: ||')
+  JQ_VER=$(jq --version)
+  JQ_VER=${JQ_VER#jq-}
   cat <<EOF
 Installed tooling:
-  * jq
   * oc $OC_VER
   * kubectl $KUBECTL_VER
-  * odo $ODO_VER
   * helm $HELM_VER
-  * KNative $KN_VER
-  * Tekton CLI $TKN_VER
+  * kn (KNative CLI) $KN_VER
+  * tkn (Tekton CLI) $TKN_VER
+  * subctl (Submariner CLI) $SUBMARINER_VERSION
+  * odo (Red Hat OpenShift Developer CLI) $ODO_VER
+  * rhoas (Red Hat OpenShift Application Services CLI) $RHOAS_VERSION
   * kubectx & kubens $KUBECTX_VERSION
-  * rhoas $RHOAS_VERSION
-  * submariner $SUBMARINER_VERSION
+  * jq $JQ_VER
 EOF
 }
 
