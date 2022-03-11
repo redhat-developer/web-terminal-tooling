@@ -45,12 +45,14 @@ RUN \
 
 COPY etc/initial_config /tmp/initial_config
 COPY tooling_versions.env /tmp/tooling_versions.env
+COPY ["etc/wtoctl", "etc/wtoctl_help.sh", "etc/wtoctl_jq.sh", "/usr/local/bin/"]
+COPY etc/entrypoint.sh /entrypoint.sh
+
 # Change permissions to let any arbitrary user
 RUN for f in "${HOME}" "${INITIAL_CONFIG}" "/etc/passwd" "/etc/group"; do \
     echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
     chmod -R g+rwX ${f}; \
     done
-COPY etc/entrypoint.sh /entrypoint.sh
 
 USER 1001
 ENTRYPOINT [ "/entrypoint.sh" ]

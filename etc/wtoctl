@@ -1,0 +1,190 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
+source "${SCRIPT_DIR}/wtoctl_help.sh"
+source "${SCRIPT_DIR}/wtoctl_jq.sh"
+
+NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+DEVWORKSPACE_ID_LABEL="controller.devfile.io/devworkspace_id"
+
+if [[ $# -lt 1 ]]; then
+  general_help
+  exit 0
+fi
+
+function preflight_checks() {
+  # Verify that the current Web Terminal has the default components we expect
+  # Otherwise commands could fail in hard to understand ways
+  if ! grep -q 'name: web-terminal-exec' "$DEVWORKSPACE_FLATTENED_DEVFILE" ||
+     ! grep -q 'controller.devfile.io/imported-by: web-terminal-exec' "$DEVWORKSPACE_FLATTENED_DEVFILE" ||
+     ! grep -q 'name: web-terminal-tooling' "$DEVWORKSPACE_FLATTENED_DEVFILE" ||
+     ! grep -q 'controller.devfile.io/imported-by: web-terminal-tooling' "$DEVWORKSPACE_FLATTENED_DEVFILE"; then
+    echo "Current Web Terminal does not contain expected components -- wtoctl cannot operate on this Web Terminal"
+    exit 1
+  fi
+}
+
+function get_current_image() {
+  # Since we don't have `yq` installed in the tooling container, we have to grab the pod
+  # and read it from there
+  POD_JSON=$(oc get pods --namespace "$NAMESPACE" -l "$DEVWORKSPACE_ID_LABEL=$DEVWORKSPACE_ID" -o json)
+  CURR_IMAGE=$(echo "$POD_JSON" | jq -r '.items[0].spec.containers[] | select(.name == "web-terminal-tooling") | .image')
+  echo "$CURR_IMAGE"
+}
+
+function get_tooling_image() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Get image used for terminal"
+    echo "Usage: 'wtoctl get image'"
+    exit 0
+  fi
+  expect_no_args "wtoctl get image" "$@"
+  CURR_IMG=$(get_current_image)
+  echo "Current image is $CURR_IMG"
+}
+
+function set_tooling_image() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Set image used for terminal"
+    echo "Usage: 'wtoctl set image <image-name>'"
+    exit 0
+  fi
+  expect_one_arg "wtoctl set image" "$@"
+  local IMAGE="$1"
+  DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
+  UPDATED_JSON=$(echo "$DW_JSON" | jq --arg IMAGE "$IMAGE" "$JQ_SET_IMAGE_SCRIPT")
+  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "Updated Web Terminal image to $IMAGE. Terminal may restart."
+}
+
+function reset_tooling_image() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Reset image used for terminal to the default"
+    echo "Usage: 'wtoctl reset image'"
+    exit 0
+  fi
+  expect_no_args "wtoctl reset image" "$@"
+  DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
+  UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_IMAGE_SCRIPT")
+  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "Reset Web Terminal tooling image, terminal may restart"
+}
+
+function get_timeout() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Get timeout used for terminal"
+    echo "Usage: 'wtoctl get timeout'"
+    exit 0
+  fi
+  expect_no_args "wtoctl get timeout" "$@"
+  POD_JSON=$(oc get pods --namespace "$NAMESPACE" -l "$DEVWORKSPACE_ID_LABEL=$DEVWORKSPACE_ID" -o json)
+  CURRENT_TIMEOUT=$(echo "$POD_JSON" | jq -r "$JQ_GET_TIMEOUT_SCRIPT")
+  echo "Current timeout is $CURRENT_TIMEOUT"
+}
+
+function set_timeout() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Set timeout used for terminal"
+    echo "Usage: 'wtoctl set timeout <timeout>'"
+    echo "See 'wtoctl timeout --help' for timeout format"
+    exit 0
+  fi
+  expect_one_arg "wtoctl set timeout" "$@"
+  local TIMEOUT="$1"
+  DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
+  UPDATED_JSON=$(echo "$DW_JSON" | jq --arg TIMEOUT "$TIMEOUT" "$JQ_SET_TIMEOUT_SCRIPT")
+  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "Updated Web Terminal idle timeout to $TIMEOUT. Terminal may restart."
+}
+
+function reset_timeout() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Reset idle timeout used for terminal to the default"
+    echo "Usage: 'wtoctl reset timeout'"
+    exit 0
+  fi
+  expect_no_args "wtoctl reset timeout" "$@"
+  DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
+  UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_TIMEOUT_SCRIPT")
+  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "Reset Web Terminal idle timeout. Terminal may restart."
+}
+
+function do_get() {
+  if [[ $# -lt 1 ]]; then
+    echo "wtoctl get expects additional arguments. See 'wtoctl get --help' for more information"
+    exit 1
+  fi
+  case $1 in
+    "image")
+    get_tooling_image "${@:2}" ;;
+    "timeout")
+    get_timeout "${@:2}" ;;
+    "--help"|"help")
+    get_help ;;
+    *)
+    echo "Unknown option $1 for 'wtoctl get'"
+    echo "See 'wtoctl get --help' for usage."
+    exit 1
+  esac
+}
+
+function do_set() {
+  if [[ $# -lt 1 ]]; then
+    echo "wtoctl set expects additional arguments. See 'wtoctl set --help' for more information"
+    exit 1
+  fi
+  case $1 in
+    "image")
+    set_tooling_image "${@:2}" ;;
+    "timeout")
+    set_timeout "${@:2}" ;;
+    "--help"|"help")
+    set_help ;;
+    *)
+    echo "Unknown option $1 for 'wtoctl set'"
+    echo "See 'wtoctl set --help' for usage."
+    exit 1
+  esac
+}
+
+function do_reset() {
+  if [[ $# -lt 1 ]]; then
+    echo "wtoctl reset expects additional arguments. See 'wtoctl reset --help' for more information"
+    exit 1
+  fi
+  case $1 in
+    "image")
+      reset_tooling_image "${@:2}" ;;
+    "timeout")
+      reset_timeout "${@:2}" ;;
+    "--help"|"help")
+      reset_help ;;
+    *)
+    echo "Unknown option $1 for 'wtoctl reset'"
+    echo "See 'wtoctl reset --help' for usage."
+    exit 1
+  esac
+}
+
+preflight_checks
+
+case $1 in
+  "get")
+    do_get "${@:2}" ;;
+  "set")
+    do_set "${@:2}" ;;
+  "reset")
+    do_reset "${@:2}" ;;
+  "--help"|"help")
+    general_help ;;
+  "image")
+    help_or_error image_help "wtoctl image" "${@:2}" ;;
+  "timeout")
+    help_or_error timeout_help "wtoctl timeout" "${@:2}" ;;
+  *)
+    echo "Unknown command $1 for wtoctl"
+    echo "Run 'wtoctl --help' for usage"
+esac
