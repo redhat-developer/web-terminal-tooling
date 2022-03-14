@@ -1,19 +1,6 @@
 # Set default editor to vim instead of default fallback vi
 EDITOR=vim
 
-INSTALLED_TOOLS='Command\tVersion\tName
-oc $OC_VER
-kubectl $KUBECTL_VER
-helm $HELM_VER
-kn (KNative CLI) $KN_VER
-tkn (Tekton CLI) $TKN_VER
-subctl (Submariner CLI) $SUBMARINER_VERSION
-odo (Red Hat OpenShift Developer CLI) $ODO_VER
-rhoas (Red Hat OpenShift Application Services CLI) $RHOAS_VERSION
-kubectx & kubens $KUBECTX_VERSION
-jq $JQ_VER
-'
-
 function help_message() {
   source /tmp/tooling_versions.env
   # Kubectl version isn't explicitly defined and instead matches oc version
@@ -21,6 +8,7 @@ function help_message() {
   JQ_VER=$(jq --version)
   JQ_VER=${JQ_VER#jq-}
 
+  echo "Installed tools:"
   cat <<EOF | column -t -s '|'
 Command  |Version  |Name
 oc|$OC_VER|OpenShift CLI
@@ -35,6 +23,8 @@ kubectx|$KUBECTX_VERSION|Kubernetes Context CLI
 kubens|$KUBECTX_VERSION|Kubernetes Namespace CLI
 jq|$JQ_VER|jq
 EOF
+  echo ""
+  echo "To customize this terminal, see 'wtoctl'"
 }
 
 alias help=help_message
