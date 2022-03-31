@@ -28,12 +28,7 @@ RUN mkdir -p /home/user $INITIAL_CONFIG && \
 ADD container-root-x86_64.tgz /
 # Propagate tools to path and install bash autocompletion
 RUN \
-    # Kubectx & Kubens
-    ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx && \
-    ln -s /opt/kubectx/kubens /usr/local/bin/kubens && \
     COMPDIR=$(pkg-config --variable=completionsdir bash-completion) && \
-    ln -sf /opt/kubectx/completion/kubens.bash $COMPDIR/kubens && \
-    ln -sf /opt/kubectx/completion/kubectx.bash $COMPDIR/kubectx && \
     # install rhoas
     ln -s /opt/rhoas/rhoas /usr/local/bin/rhoas && \
     rhoas completion bash > $COMPDIR/rhoas && \
