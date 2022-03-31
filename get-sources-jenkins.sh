@@ -84,12 +84,6 @@ echo "$(grep kn-linux-amd64.tar.gz sha256sum.txt | cut -d' ' -f1) kn-linux-amd64
 tar xzf kn-linux-amd64.tar.gz -C "$CONTAINER_USR_BIN_DIR" kn
 rm -rf "${TMPDIR:?}"/*
 
-echo "Downloading kubectx ${KUBECTX_VERSION}"
-mkdir -p "$CONTAINER_OPT_DIR/kubectx"
-wget -q -O- https://github.com/ahmetb/kubectx/archive/${KUBECTX_VERSION}.tar.gz | \
-  tar xz --strip-components=1 -C "$CONTAINER_OPT_DIR/kubectx"
-rm -rf "${TMPDIR:?}"/*
-
 echo "Downloading rhoas ${RHOAS_VERSION}"
 mkdir -p "$CONTAINER_OPT_DIR/rhoas"
 wget -q -O- https://github.com/redhat-developer/app-services-cli/releases/download/v${RHOAS_VERSION}/rhoas_${RHOAS_VERSION}_linux_amd64.tar.gz | \
@@ -119,8 +113,6 @@ rm -f rh-manifest.txt || true
   echo "odo ${ODO_VER} ${OPENSHIFT_CLIENTS_URL}/odo/${ODO_VER}"
   echo "tekton ${TKN_VER} ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}"
   echo "knative ${KN_VER} ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}"
-  echo "kubectx ${KUBECTX_VERSION} https://github.com/ahmetb/kubectx/tree/${KUBECTX_VERSION}"
-  echo "kubens ${KUBECTX_VERSION} https://github.com/ahmetb/kubectx/tree/${KUBECTX_VERSION}"
   echo "rhoas ${RHOAS_VERSION} https://github.com/redhat-developer/app-services-cli/tree/${RHOAS_VERSION}"
   echo "submariner ${SUBMARINER_VERSION} https://github.com/submariner-io/submariner-operator/tree/v${SUBMARINER_VERSION}"
 } >> rh-manifest.txt
