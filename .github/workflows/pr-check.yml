@@ -22,7 +22,7 @@ jobs:
     - name: Download tooling binaries
       if: steps.cache-tooling-binaries.outputs.cache-hit != 'true'
       run: |
-        ./get-sources-jenkins.sh
+        ./get-sources.sh
 
     - name: Prepare Dockerfile for building
       run: |
