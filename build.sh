@@ -62,7 +62,7 @@ parse_arguments "$@"
 
 if [[ ! -f "container-root-x86_64.tgz" ]] || [[ "$updateBinariesTgz" == "true" ]]; then
   echo "Updating locally cached sources tarball"
-  ./get-sources-jenkins.sh
+  ./get-sources.sh
 fi
 
 ./build/generate_dockerfile.sh --mode "${MODE}" --output "./build/complete.Dockerfile"
