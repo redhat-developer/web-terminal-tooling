@@ -22,7 +22,7 @@ RUN mkdir -p /home/user $INITIAL_CONFIG && \
     vi vim nano \
     # developer tools
 #@brew     mc \
-    curl git procps jq && \
+    curl tar git procps jq && \
     microdnf -y clean all
 
 ADD container-root-x86_64.tgz /
