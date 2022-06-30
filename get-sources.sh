@@ -93,7 +93,7 @@ chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
 echo "Downloading submariner ${SUBMARINER_VERSION}"
 mkdir -p "$CONTAINER_OPT_DIR/submariner"
-wget -q -O- https://github.com/submariner-io/submariner-operator/releases/download/v${SUBMARINER_VERSION}/subctl-release-0.10-9680181-linux-amd64.tar.xz | \
+wget -q -O- https://github.com/submariner-io/releases/releases/download/v${SUBMARINER_VERSION}/subctl-v${SUBMARINER_VERSION}-linux-amd64.tar.xz | \
   tar xJ --strip-components=1 -C "$CONTAINER_OPT_DIR/submariner"
 mv "$CONTAINER_OPT_DIR"/submariner/subctl* "$CONTAINER_OPT_DIR"/submariner/subctl
 rm -rf "${TMPDIR:?}"/*
@@ -105,6 +105,8 @@ if [[ "$updateSourcesFlag" = "true" ]]; then
   rhpkg new-sources container-root-x86_64.tgz
 fi
 
+# TODO: releases after subctl v0.12.1 will be stored in https://github.com/submariner-io/subctl
+#       source needs to be updated below.
 rm -f rh-manifest.txt || true
 {
   echo "oc ${OC_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"

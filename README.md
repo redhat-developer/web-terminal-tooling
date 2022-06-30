@@ -11,7 +11,7 @@ Includes tools that a Kubernetes and OpenShift developer would like find in thei
 - [KNative](https://github.com/knative/client) [v0.23.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/0.23.0)
 - [Tekton CLI](https://github.com/tektoncd/cli) [0.19.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipeline/0.17.2)
 - [rhoas](https://github.com/redhat-developer/app-services-cli) [0.34.2](https://github.com/redhat-developer/app-services-cli/releases/tag/0.34.2)
-- [submariner](https://github.com/submariner-io/submariner) [v0.10.1](https://github.com/submariner-io/submariner/releases/tag/v0.10.1)
+- [submariner](https://github.com/submariner-io/submariner) [v0.12.1](https://github.com/submariner-io/submariner/releases/tag/v0.12.1)
 
 ## Contributing
 

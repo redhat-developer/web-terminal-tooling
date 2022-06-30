@@ -5,4 +5,4 @@ odo v2.5.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v2.5
 tekton 0.21.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipeline/0.21.0
 knative 1.0.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/1.0.0
 rhoas 0.39.0 https://github.com/redhat-developer/app-services-cli/tree/0.39.0
-submariner 0.10.1 https://github.com/submariner-io/submariner-operator/tree/v0.10.1
+submariner 0.12.1 https://github.com/submariner-io/submariner-operator/tree/v0.12.1
