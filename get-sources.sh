@@ -71,9 +71,9 @@ rm -rf "${TMPDIR:?}"/*
 echo "Downloading tekton ${TKN_VER}"
 curl -sSfL --insecure --remote-name-all \
   ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}/sha256sum.txt \
-  ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}/tkn-linux-amd64-${TKN_VER}.tar.gz
-echo "$(grep tkn-linux-amd64-${TKN_VER}.tar.gz sha256sum.txt | cut -d' ' -f1) tkn-linux-amd64-${TKN_VER}.tar.gz" | sha256sum --check --status
-tar xzf tkn-linux-amd64-${TKN_VER}.tar.gz -C "$CONTAINER_USR_BIN_DIR" tkn
+  ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}/tkn-linux-amd64.tar.gz
+echo "$(grep tkn-linux-amd64.tar.gz sha256sum.txt | cut -d' ' -f1) tkn-linux-amd64.tar.gz" | sha256sum --check --status
+tar xzf tkn-linux-amd64.tar.gz -C "$CONTAINER_USR_BIN_DIR" tkn
 rm -rf "${TMPDIR:?}"/*
 
 echo "Downloading knative ${KN_VER}"
@@ -81,7 +81,8 @@ curl -sSfL --insecure --remote-name-all \
   ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}/sha256sum.txt \
   ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}/kn-linux-amd64.tar.gz
 echo "$(grep kn-linux-amd64.tar.gz sha256sum.txt | cut -d' ' -f1) kn-linux-amd64.tar.gz" | sha256sum --check --status && \
-tar xzf kn-linux-amd64.tar.gz -C "$CONTAINER_USR_BIN_DIR" kn
+tar xzf kn-linux-amd64.tar.gz -C "$CONTAINER_USR_BIN_DIR" kn-linux-amd64
+mv "$CONTAINER_USR_BIN_DIR/kn-linux-amd64" "$CONTAINER_USR_BIN_DIR/kn"
 rm -rf "${TMPDIR:?}"/*
 
 echo "Downloading rhoas ${RHOAS_VERSION}"
@@ -105,8 +106,8 @@ if [[ "$updateSourcesFlag" = "true" ]]; then
   rhpkg new-sources container-root-x86_64.tgz
 fi
 
-# TODO: releases after subctl v0.12.1 will be stored in https://github.com/submariner-io/subctl
-#       source needs to be updated below.
+# NOTE: source code for submariner is stored in https://github.com/submariner-io/subctl,
+#       but built binaries are available only in https://github.com/submariner-io/releases/
 rm -f rh-manifest.txt || true
 {
   echo "oc ${OC_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
@@ -115,8 +116,8 @@ rm -f rh-manifest.txt || true
   echo "odo ${ODO_VER} ${OPENSHIFT_CLIENTS_URL}/odo/${ODO_VER}"
   echo "tekton ${TKN_VER} ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}"
   echo "knative ${KN_VER} ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}"
-  echo "rhoas ${RHOAS_VERSION} https://github.com/redhat-developer/app-services-cli/tree/${RHOAS_VERSION}"
-  echo "submariner ${SUBMARINER_VERSION} https://github.com/submariner-io/submariner-operator/tree/v${SUBMARINER_VERSION}"
+  echo "rhoas ${RHOAS_VERSION} https://github.com/redhat-developer/app-services-cli/tree/v${RHOAS_VERSION}"
+  echo "submariner ${SUBMARINER_VERSION} https://github.com/submariner-io/subctl/tree/v${SUBMARINER_VERSION}"
 } >> rh-manifest.txt
 
 rm -rf "$CONTAINER_ROOT_DIR"
