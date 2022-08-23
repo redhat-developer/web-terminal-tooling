@@ -1,6 +1,6 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-#@local FROM registry.access.redhat.com/ubi8-minimal:8.5-230
-#@brew FROM ubi8-minimal:8.5-230
+#@local FROM registry.access.redhat.com/ubi8-minimal:8.6-902
+#@brew FROM ubi8-minimal:8.6-902
 USER 0
 
 # The $INITIAL_CONFIG dir stores dotfiles (e.g. .bashrc) for the web terminal, which
