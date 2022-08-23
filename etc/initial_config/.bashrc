@@ -19,6 +19,7 @@ tkn|$TKN_VER|Tekton CLI
 subctl|$SUBMARINER_VERSION|Submariner CLI
 odo|$ODO_VER|Red Hat OpenShift Developer CLI
 rhoas|$RHOAS_VERSION|Red Hat OpenShift Application Services CLI
+virtctl|$KUBEVIRT_VERSION|KubeVirt CLI
 jq|$JQ_VER|jq
 EOF
   echo ""

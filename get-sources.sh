@@ -100,6 +100,13 @@ mv "$CONTAINER_OPT_DIR"/submariner/subctl* "$CONTAINER_OPT_DIR"/submariner/subct
 rm -rf "${TMPDIR:?}"/*
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
+echo "Downloading kubevirt ${KUBEVIRT_VERSION}"
+mkdir -p "$CONTAINER_OPT_DIR/kubevirt/"
+wget -q -O "$CONTAINER_OPT_DIR/kubevirt/virtctl" https://github.com/kubevirt/kubevirt/releases/download/v${KUBEVIRT_VERSION}/virtctl-v${KUBEVIRT_VERSION}-linux-amd64
+chmod a+x "$CONTAINER_OPT_DIR/kubevirt/virtctl"
+rm -rf "${TMPDIR:?}"/*
+chmod -R +x "${CONTAINER_USR_BIN_DIR}"
+
 cd "$PROJECT_ROOT"
 tar -czf container-root-x86_64.tgz -C "$CONTAINER_ROOT_RELATIVE_PATH" .
 if [[ "$updateSourcesFlag" = "true" ]]; then
@@ -118,6 +125,7 @@ rm -f rh-manifest.txt || true
   echo "knative ${KN_VER} ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}"
   echo "rhoas ${RHOAS_VERSION} https://github.com/redhat-developer/app-services-cli/tree/v${RHOAS_VERSION}"
   echo "submariner ${SUBMARINER_VERSION} https://github.com/submariner-io/subctl/tree/v${SUBMARINER_VERSION}"
+  echo "kubevirt ${KUBEVIRT_VERSION} https://github.com/kubevirt/kubevirt/tree/v${KUBEVIRT_VERSION}"
 } >> rh-manifest.txt
 
 rm -rf "$CONTAINER_ROOT_DIR"
