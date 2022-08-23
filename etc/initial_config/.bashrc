@@ -4,7 +4,7 @@ EDITOR=vim
 function help_message() {
   source /tmp/tooling_versions.env
   # Kubectl version isn't explicitly defined and instead matches oc version
-  KUBECTL_VER=$(kubectl version --client --short | sed 's|Client Version: ||')
+  KUBECTL_VER=$(kubectl version --client --short 2>/dev/null | grep 'Client Version' | sed 's|Client Version: ||')
   JQ_VER=$(jq --version)
   JQ_VER=${JQ_VER#jq-}
 

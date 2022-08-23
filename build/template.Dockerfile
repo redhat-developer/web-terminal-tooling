@@ -31,15 +31,16 @@ RUN \
     COMPDIR=$(pkg-config --variable=completionsdir bash-completion) && \
     # install rhoas
     ln -s /opt/rhoas/rhoas /usr/local/bin/rhoas && \
-    rhoas completion bash > $COMPDIR/rhoas && \
     # install submariner
     ln -s /opt/submariner/subctl /usr/local/bin/subctl && \
-    # Install oc & kubectl & odo && kn && helm && tkn
+    # install bash completions
     kubectl completion bash > $COMPDIR/kubectl && \
     oc completion bash > $COMPDIR/oc && \
     kn completion bash > $COMPDIR/kn && \
     helm completion bash > $COMPDIR/helm && \
-    tkn completion bash > $COMPDIR/tkn
+    tkn completion bash > $COMPDIR/tkn && \
+    rhoas completion bash > $COMPDIR/rhoas && \
+    subctl completion bash > $COMPDIR/subctl
 
 COPY etc/initial_config /tmp/initial_config
 COPY tooling_versions.env /tmp/tooling_versions.env
@@ -67,7 +68,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="$PRODNAME,$COMPNAME" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
-      version="1.5" \
+      version="1.6" \
       license="EPLv2" \
       maintainer="Angel Misevski <amisevsk@redhat.com>" \
       io.openshift.expose-services="" \
