@@ -33,12 +33,15 @@ RUN \
     ln -s /opt/rhoas/rhoas /usr/local/bin/rhoas && \
     # install submariner
     ln -s /opt/submariner/subctl /usr/local/bin/subctl && \
+    # install kubevirt
+    ln -s /opt/kubevirt/virtctl /usr/local/bin/virtctl && \
     # install bash completions
     kubectl completion bash > $COMPDIR/kubectl && \
     oc completion bash > $COMPDIR/oc && \
     kn completion bash > $COMPDIR/kn && \
     helm completion bash > $COMPDIR/helm && \
     tkn completion bash > $COMPDIR/tkn && \
+    virtctl completion bash > $COMPDIR/virtctl && \
     rhoas completion bash > $COMPDIR/rhoas && \
     subctl completion bash > $COMPDIR/subctl
 
