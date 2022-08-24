@@ -3,7 +3,7 @@ import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
 def String SOURCE_BRANCH = "main"
-def String DWNSTM_BRANCH = "web-terminal-1.5-rhel-8"
+def String DWNSTM_BRANCH = "web-terminal-1.6-rhel-8"
 
 def String SOURCE_REPO = "redhat-developer/web-terminal-tooling" // source repo from which to find commits
 
