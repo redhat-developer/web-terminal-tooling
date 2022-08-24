@@ -35,6 +35,8 @@ RUN \
     ln -s /opt/submariner/subctl /usr/local/bin/subctl && \
     # install kubevirt
     ln -s /opt/kubevirt/virtctl /usr/local/bin/virtctl && \
+    # install kustomize
+    ln -s /opt/kustomize/kustomize /usr/local/bin/kustomize && \
     # install bash completions
     kubectl completion bash > $COMPDIR/kubectl && \
     oc completion bash > $COMPDIR/oc && \

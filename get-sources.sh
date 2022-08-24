@@ -107,6 +107,13 @@ chmod a+x "$CONTAINER_OPT_DIR/kubevirt/virtctl"
 rm -rf "${TMPDIR:?}"/*
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
+echo "Downloading kustomize ${KUSTOMIZE_VER}"
+mkdir -p "$CONTAINER_OPT_DIR/kustomize/"
+wget -q -O- https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VER}/kustomize_v${KUSTOMIZE_VER}_linux_amd64.tar.gz | \
+  tar xz -C "$CONTAINER_OPT_DIR/kustomize/"
+rm -rf "${TMPDIR:?}"/*
+chmod -R +x "${CONTAINER_USR_BIN_DIR}"
+
 cd "$PROJECT_ROOT"
 tar -czf container-root-x86_64.tgz -C "$CONTAINER_ROOT_RELATIVE_PATH" .
 if [[ "$updateSourcesFlag" = "true" ]]; then
@@ -119,6 +126,7 @@ rm -f rh-manifest.txt || true
 {
   echo "oc ${OC_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
   echo "kubectl ${KUBECTL_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
+  echo "kustomize ${KUSTOMIZE_VER} https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v${KUSTOMIZE_VER}"
   echo "helm ${HELM_VER} ${OPENSHIFT_CLIENTS_URL}/helm/${HELM_VER}"
   echo "odo ${ODO_VER} ${OPENSHIFT_CLIENTS_URL}/odo/${ODO_VER}"
   echo "tekton ${TKN_VER} ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}"
