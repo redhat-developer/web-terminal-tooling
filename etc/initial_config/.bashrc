@@ -13,6 +13,7 @@ function help_message() {
 Command  |Version  |Name
 oc|$OC_VER|OpenShift CLI
 kubectl|$KUBECTL_VER|Kubernetes CLI
+kustomize|$KUSTOMIZE_VER|Kustomize CLI
 helm|$HELM_VER|Helm CLI
 kn|$KN_VER|KNative CLI
 tkn|$TKN_VER|Tekton CLI
