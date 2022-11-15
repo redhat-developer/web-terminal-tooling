@@ -24,10 +24,6 @@ jobs:
       run: |
         ./get-sources.sh
 
-    - name: Prepare Dockerfile for building
-      run: |
-        ./build/generate_dockerfile.sh --mode local --output ./build/complete.Dockerfile
-
     - name: Build container image
       run: |
-        docker build -f ./build/complete.Dockerfile .
+        docker build -f ./Dockerfile .
