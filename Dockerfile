@@ -1,6 +1,5 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-#@local FROM registry.access.redhat.com/ubi8-minimal:8.6-902
-#@brew FROM ubi8-minimal:8.6-902
+FROM registry.access.redhat.com/ubi8-minimal:8.6-902
 USER 0
 
 # The $INITIAL_CONFIG dir stores dotfiles (e.g. .bashrc) for the web terminal, which
@@ -12,16 +11,13 @@ ENV HOME=/home/user
 WORKDIR /home/user
 
 RUN mkdir -p /home/user $INITIAL_CONFIG && \
-#@local     microdnf update -y --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos && \
-#@local     microdnf install -y --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos \
-#@brew     microdnf update -y && \
-#@brew     microdnf install -y \
+    microdnf update -y --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos && \
+    microdnf install -y --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config findutils \
     # terminal-based editors
     vi vim nano \
     # developer tools
-#@brew     mc \
     curl tar git procps jq && \
     microdnf -y clean all
 
@@ -52,7 +48,7 @@ COPY tooling_versions.env /tmp/tooling_versions.env
 COPY ["etc/wtoctl", "etc/wtoctl_help.sh", "etc/wtoctl_jq.sh", "/usr/local/bin/"]
 COPY etc/entrypoint.sh /entrypoint.sh
 
-# Change permissions to let any arbitrary user
+# Change permissions to let root group access necessary files
 RUN for f in "${HOME}" "${INITIAL_CONFIG}" "/etc/passwd" "/etc/group"; do \
     echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
     chmod -R g+rwX ${f}; \
