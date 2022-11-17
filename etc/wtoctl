@@ -6,8 +6,10 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 source "${SCRIPT_DIR}/wtoctl_help.sh"
 source "${SCRIPT_DIR}/wtoctl_jq.sh"
 
-NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 DEVWORKSPACE_ID_LABEL="controller.devfile.io/devworkspace_id"
+if [ -f /var/run/secrets/kubernetes.io/serviceaccount/namespace ]; then
+  NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+fi
 
 if [[ $# -lt 1 ]]; then
   general_help
@@ -15,6 +17,10 @@ if [[ $# -lt 1 ]]; then
 fi
 
 function preflight_checks() {
+  if [ -z $NAMESPACE ] || [ ! -f $DEVWORKSPACE_FLATTENED_DEVFILE ]; then
+    echo "Container does not appear to be running in an OpenShift cluster -- wtoctl commands are unavailable"
+    exit 1
+  fi
   # Verify that the current Web Terminal has the default components we expect
   # Otherwise commands could fail in hard to understand ways
   if ! grep -q 'name: web-terminal-exec' "$DEVWORKSPACE_FLATTENED_DEVFILE" ||
@@ -169,14 +175,15 @@ function do_reset() {
   esac
 }
 
-preflight_checks
-
 case $1 in
   "get")
+    preflight_checks
     do_get "${@:2}" ;;
   "set")
+    preflight_checks
     do_set "${@:2}" ;;
   "reset")
+    preflight_checks
     do_reset "${@:2}" ;;
   "--help"|"help")
     general_help ;;
