@@ -75,7 +75,7 @@ function reset_tooling_image() {
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
   UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_IMAGE_SCRIPT")
   echo "$UPDATED_JSON" | kubectl apply -f -
-  echo "Reset Web Terminal tooling image, terminal may restart"
+  echo "Reset Web Terminal tooling image. Terminal may restart"
 }
 
 function get_timeout() {
