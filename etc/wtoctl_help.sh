@@ -6,7 +6,7 @@ wtoctl is a simple tool for customizing Web Terminals in OpenShift intended to
 be used within a running terminal instance.
 
 Configurable fields:
-  * image   - the image used for the terminal
+  * image   - the image used for the Web Terminal
   * timeout - the time a Web Terminal may be idle before it is terminated
 
 Available commands:
@@ -22,7 +22,7 @@ Use wtoctl <field> --help for more information about a given field.
 
 To reset all changes and return to a default terminal, execute
   oc delete devworkspace $DEVWORKSPACE_NAME --namespace $NAMESPACE
-and restart the Web Terminal
+and restart the Web Terminal.
 EOF
 }
 
@@ -47,7 +47,7 @@ function timeout_help() {
 The timeout field defines how long a Web Terminal should wait before shutting
 down when left idle. The duration should be specified as a number and unit
 suffix. Valid suffixes are "ms" (milliseconds), "s" (seconds), "m" (minutes),
-and "h" (hours). After the specified duration, the web terminal will shut down
+and "h" (hours). After the specified duration, the Web Terminal will shut down
 and need to be restarted the the next time it is accessed.
 
 It is not recommended to use very long durations for this value, as it will
@@ -62,10 +62,10 @@ EOF
 
 function get_help() {
   cat <<EOF
-Gets the current value of a field
+Gets the current value of a field.
 
 Configurable fields:
-  * image   - the image used for the terminal
+  * image   - the image used for the Web Terminal
   * timeout - the time a Web Terminal may be idle before it is terminated
 
 Usage:
@@ -77,11 +77,11 @@ EOF
 
 function set_help() {
   cat <<EOF
-Sets a given field
+Sets a given field.
 
 Configurable fields:
-  * image   - the image used for the terminal
-  * timeout - the time a Web Terminal may be idle before it is terminated
+  * image   - the image used for the Web Terminal
+  * timeout - the duration a Web Terminal may be idle before it is terminated
 
 Usage:
   wtoctl set <field> <value>
@@ -92,7 +92,7 @@ EOF
 
 function reset_help() {
   cat <<EOF
-Resets a given field to its default value
+Resets a given field to its default value.
 
 Configurable fields:
   * image   - the image used for the terminal
