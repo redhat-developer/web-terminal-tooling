@@ -17,19 +17,14 @@ Includes tools that a Kubernetes and OpenShift developer would like find in thei
 
 ### How to build
 
-There is [template.Dockerfile](https://github.com/redhat-developer/web-terminal-tooling/blob/master/build/template.Dockerfile) that is processed by build.sh script to apply needed changes before build. So, execute the following but before uncomment configuration params if needed.
+Building the Web Terminal tooling container consists of two steps:
+1. Download CLI binaries and pack them into a tarball (see `get-sources.sh`)
+2. Build the container image using the Dockerfile in this repository
 
-```bash
-# TOOL=podman # can be docker
-# MODE=local # can be brew
-# WEB_TERMINAL_TOOLING_IMG=web-terminal-tooling:local
-./build.sh
-```
+The `./build.sh` script can be used to automate the build process. By default, `podman` will be used to build the container image. See `./build.sh --help` for usage information.
 
 ### How to run
 
 ```bash
 podman run -ti --rm web-terminal-tooling:local bash
 ```
-
-Upstream and downstream are synced via this [job](https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/web-terminal-sync-web-terminal-tooling/)
