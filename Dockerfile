@@ -11,8 +11,8 @@ ENV HOME=/home/user
 WORKDIR /home/user
 
 RUN mkdir -p /home/user $INITIAL_CONFIG && \
-    microdnf update -y --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos && \
-    microdnf install -y --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos \
+    microdnf update -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms && \
+    microdnf install -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config findutils \
     # terminal-based editors
