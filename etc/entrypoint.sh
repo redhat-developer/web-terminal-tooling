@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 # Ensure $HOME exists when starting
