@@ -96,24 +96,24 @@ tar xzf kn-linux-amd64.tar.gz -C "$CONTAINER_USR_BIN_DIR" kn-linux-amd64
 mv "$CONTAINER_USR_BIN_DIR/kn-linux-amd64" "$CONTAINER_USR_BIN_DIR/kn"
 rm -rf "${TMPDIR:?}"/*
 
-echo "Downloading rhoas ${RHOAS_VERSION}"
+echo "Downloading rhoas ${RHOAS_VER}"
 mkdir -p "$CONTAINER_OPT_DIR/rhoas"
-wget -q -O- "https://github.com/redhat-developer/app-services-cli/releases/download/v${RHOAS_VERSION}/rhoas_${RHOAS_VERSION}_linux_amd64.tar.gz" | \
+wget -q -O- "https://github.com/redhat-developer/app-services-cli/releases/download/v${RHOAS_VER}/rhoas_${RHOAS_VER}_linux_amd64.tar.gz" | \
   tar xz --strip-components=1 -C "$CONTAINER_OPT_DIR/rhoas"
 rm -rf "${TMPDIR:?}"/*
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
-echo "Downloading submariner ${SUBMARINER_VERSION}"
+echo "Downloading submariner ${SUBMARINER_VER}"
 mkdir -p "$CONTAINER_OPT_DIR/submariner"
-wget -q -O- "https://github.com/submariner-io/releases/releases/download/v${SUBMARINER_VERSION}/subctl-v${SUBMARINER_VERSION}-linux-amd64.tar.xz" | \
+wget -q -O- "https://github.com/submariner-io/releases/releases/download/v${SUBMARINER_VER}/subctl-v${SUBMARINER_VER}-linux-amd64.tar.xz" | \
   tar xJ --strip-components=1 -C "$CONTAINER_OPT_DIR/submariner"
 mv "$CONTAINER_OPT_DIR"/submariner/subctl* "$CONTAINER_OPT_DIR"/submariner/subctl
 rm -rf "${TMPDIR:?}"/*
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
-echo "Downloading kubevirt ${KUBEVIRT_VERSION}"
+echo "Downloading kubevirt ${KUBEVIRT_VER}"
 mkdir -p "$CONTAINER_OPT_DIR/kubevirt/"
-wget -q -O "$CONTAINER_OPT_DIR/kubevirt/virtctl" "https://github.com/kubevirt/kubevirt/releases/download/v${KUBEVIRT_VERSION}/virtctl-v${KUBEVIRT_VERSION}-linux-amd64"
+wget -q -O "$CONTAINER_OPT_DIR/kubevirt/virtctl" "https://github.com/kubevirt/kubevirt/releases/download/v${KUBEVIRT_VER}/virtctl-v${KUBEVIRT_VER}-linux-amd64"
 chmod a+x "$CONTAINER_OPT_DIR/kubevirt/virtctl"
 rm -rf "${TMPDIR:?}"/*
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
@@ -142,9 +142,9 @@ rm -f rh-manifest.txt || true
   echo "odo ${ODO_VER} ${OPENSHIFT_CLIENTS_URL}/odo/${ODO_VER}"
   echo "tekton ${TKN_VER} ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}"
   echo "knative ${KN_VER} ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}"
-  echo "rhoas ${RHOAS_VERSION} https://github.com/redhat-developer/app-services-cli/tree/v${RHOAS_VERSION}"
-  echo "submariner ${SUBMARINER_VERSION} https://github.com/submariner-io/subctl/tree/v${SUBMARINER_VERSION}"
-  echo "kubevirt ${KUBEVIRT_VERSION} https://github.com/kubevirt/kubevirt/tree/v${KUBEVIRT_VERSION}"
+  echo "rhoas ${RHOAS_VER} https://github.com/redhat-developer/app-services-cli/tree/v${RHOAS_VER}"
+  echo "submariner ${SUBMARINER_VER} https://github.com/submariner-io/subctl/tree/v${SUBMARINER_VER}"
+  echo "kubevirt ${KUBEVIRT_VER} https://github.com/kubevirt/kubevirt/tree/v${KUBEVIRT_VER}"
 } >> rh-manifest.txt
 
 rm -rf "$CONTAINER_ROOT_DIR"

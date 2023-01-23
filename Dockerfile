@@ -44,7 +44,7 @@ RUN \
     subctl completion bash > $COMPDIR/subctl
 
 COPY etc/initial_config /tmp/initial_config
-COPY tooling_versions.env /tmp/tooling_versions.env
+COPY etc/get-tooling-versions.sh /tmp/get-tooling-versions.sh
 COPY ["etc/wtoctl", "etc/wtoctl_help.sh", "etc/wtoctl_jq.sh", "/usr/local/bin/"]
 COPY etc/entrypoint.sh /entrypoint.sh
 
@@ -52,7 +52,11 @@ COPY etc/entrypoint.sh /entrypoint.sh
 RUN for f in "${HOME}" "${INITIAL_CONFIG}" "/etc/passwd" "/etc/group"; do \
     echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
     chmod -R g+rwX ${f}; \
-    done
+    done && \
+    /tmp/get-tooling-versions.sh > /tmp/installed_tools.txt && \
+    echo "Installed tools:" && \
+    cat /tmp/installed_tools.txt && \
+    rm -f /tmp/get-tooling-versions.sh
 
 USER 1001
 ENTRYPOINT [ "/entrypoint.sh" ]
