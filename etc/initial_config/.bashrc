@@ -10,7 +10,6 @@ function help_message() {
 
 alias help=help_message
 
-complete -C /usr/local/bin/odo odo
 source /etc/profile.d/bash_completion.sh
 
 # Since xterm doesn't save history on exit, we manually sync history on each command

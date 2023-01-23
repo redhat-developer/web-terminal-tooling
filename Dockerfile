@@ -41,7 +41,8 @@ RUN \
     tkn completion bash > $COMPDIR/tkn && \
     virtctl completion bash > $COMPDIR/virtctl && \
     rhoas completion bash > $COMPDIR/rhoas && \
-    subctl completion bash > $COMPDIR/subctl
+    subctl completion bash > $COMPDIR/subctl && \
+    odo completion bash > $COMPDIR/odo
 
 COPY etc/initial_config /tmp/initial_config
 COPY etc/get-tooling-versions.sh /tmp/get-tooling-versions.sh
