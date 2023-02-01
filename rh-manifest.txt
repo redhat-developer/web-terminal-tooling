@@ -1,8 +1,8 @@
 oc 4.12.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.12.0
 kubectl v1.24.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.12.0
 kustomize 4.5.7 https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v4.5.7
-helm 3.9.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.9.0
-odo v3.5.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v3.5.0
+helm 3.10.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.10.1
+odo v3.6.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v3.6.0
 tekton 0.24.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipeline/0.24.1
 knative 1.5.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/1.5.0
 rhoas 0.52.0 https://github.com/redhat-developer/app-services-cli/tree/v0.52.0
