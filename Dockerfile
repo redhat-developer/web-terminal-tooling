@@ -15,6 +15,8 @@ RUN mkdir -p /home/user $INITIAL_CONFIG && \
     microdnf install -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config findutils \
+    # zsh
+    zsh \
     # terminal-based editors
     vi vim nano \
     # developer tools
@@ -60,6 +62,7 @@ RUN for f in "${HOME}" "${INITIAL_CONFIG}" "/etc/passwd" "/etc/group"; do \
     rm -f /tmp/get-tooling-versions.sh
 
 USER 1001
+ENV SHELL /bin/bash
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 ENV SUMMARY="Web Terminal - Tooling container" \
