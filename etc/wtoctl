@@ -72,7 +72,7 @@ function set_tooling_image() {
   local IMAGE="$1"
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
   UPDATED_JSON=$(echo "$DW_JSON" | jq --arg IMAGE "$IMAGE" "$JQ_SET_IMAGE_SCRIPT")
-  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "$UPDATED_JSON" | oc apply -f -
   echo "Updated Web Terminal image to $IMAGE. Terminal may restart."
 }
 
@@ -85,7 +85,7 @@ function reset_tooling_image() {
   expect_no_args "wtoctl reset image" "$@"
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
   UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_IMAGE_SCRIPT")
-  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "$UPDATED_JSON" | oc apply -f -
   echo "Reset Web Terminal tooling image. Terminal may restart"
 }
 
@@ -116,7 +116,7 @@ function set_timeout() {
        --arg NAME "WEB_TERMINAL_IDLE_TIMEOUT" \
        --arg VALUE "$TIMEOUT" \
        "$JQ_SET_ENV_SCRIPT")
-  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "$UPDATED_JSON" | oc apply -f -
   echo "Updated Web Terminal idle timeout to $TIMEOUT. Terminal may restart."
 }
 
@@ -132,7 +132,7 @@ function reset_timeout() {
     jq --arg COMPONENT "web-terminal-exec" \
        --arg NAME "WEB_TERMINAL_IDLE_TIMEOUT" \
        "$JQ_RESET_ENV_SCRIPT")
-  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "$UPDATED_JSON" | oc apply -f -
   echo "Reset Web Terminal idle timeout. Terminal may restart."
 }
 
@@ -160,7 +160,7 @@ function set_shell() {
        --arg NAME "SHELL" \
        --arg VALUE "$SHELL" \
        "$JQ_SET_ENV_SCRIPT")
-  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "$UPDATED_JSON" | oc apply -f -
   echo "Updated Web Terminal shell to $SHELL. Terminal may restart."
 }
 
@@ -176,7 +176,7 @@ function reset_shell() {
     jq --arg COMPONENT "web-terminal-tooling" \
        --arg NAME "SHELL" \
        "$JQ_RESET_ENV_SCRIPT")
-  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "$UPDATED_JSON" | oc apply -f -
   echo "Reset Web Terminal shell. Terminal may restart"
 }
 
