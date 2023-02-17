@@ -111,7 +111,11 @@ function set_timeout() {
   expect_one_arg "wtoctl set timeout" "$@"
   local TIMEOUT="$1"
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
-  UPDATED_JSON=$(echo "$DW_JSON" | jq --arg TIMEOUT "$TIMEOUT" "$JQ_SET_TIMEOUT_SCRIPT")
+  UPDATED_JSON=$(echo "$DW_JSON" | \
+    jq --arg COMPONENT "web-terminal-exec" \
+       --arg NAME "WEB_TERMINAL_IDLE_TIMEOUT" \
+       --arg VALUE "$TIMEOUT" \
+       "$JQ_SET_ENV_SCRIPT")
   echo "$UPDATED_JSON" | kubectl apply -f -
   echo "Updated Web Terminal idle timeout to $TIMEOUT. Terminal may restart."
 }
@@ -124,9 +128,56 @@ function reset_timeout() {
   fi
   expect_no_args "wtoctl reset timeout" "$@"
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
-  UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_TIMEOUT_SCRIPT")
+  UPDATED_JSON=$(echo "$DW_JSON" | \
+    jq --arg COMPONENT "web-terminal-exec" \
+       --arg NAME "WEB_TERMINAL_IDLE_TIMEOUT" \
+       "$JQ_RESET_ENV_SCRIPT")
   echo "$UPDATED_JSON" | kubectl apply -f -
   echo "Reset Web Terminal idle timeout. Terminal may restart."
+}
+
+function get_shell() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Get shell used for terminal"
+    echo "Usage: 'wtoctl get shell'"
+    exit 0
+  fi
+  expect_no_args "wtoctl get shell" "$@"
+  echo "Current shell is $SHELL"
+}
+
+function set_shell() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Set shell used for terminal"
+    echo "Usage: 'wtoctl set shell <shell>'"
+    exit 0
+  fi
+  expect_one_arg "wtoctl set shell" "$@"
+  local SHELL="$1"
+  DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
+  UPDATED_JSON=$(echo "$DW_JSON" | \
+    jq --arg COMPONENT "web-terminal-tooling" \
+       --arg NAME "SHELL" \
+       --arg VALUE "$SHELL" \
+       "$JQ_SET_ENV_SCRIPT")
+  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "Updated Web Terminal shell to $SHELL. Terminal may restart."
+}
+
+function reset_shell() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Reset shell used for terminal to the default"
+    echo "Usage: 'wtoctl reset shell'"
+    exit 0
+  fi
+  expect_no_args "wtoctl reset shell" "$@"
+  DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
+  UPDATED_JSON=$(echo "$DW_JSON" | \
+    jq --arg COMPONENT "web-terminal-tooling" \
+       --arg NAME "SHELL" \
+       "$JQ_RESET_ENV_SCRIPT")
+  echo "$UPDATED_JSON" | kubectl apply -f -
+  echo "Reset Web Terminal shell. Terminal may restart"
 }
 
 function do_get() {
@@ -139,6 +190,8 @@ function do_get() {
     get_tooling_image "${@:2}" ;;
     "timeout")
     get_timeout "${@:2}" ;;
+    "shell")
+    get_shell "${@:2}" ;;
     "--help"|"help")
     get_help ;;
     *)
@@ -158,6 +211,8 @@ function do_set() {
     set_tooling_image "${@:2}" ;;
     "timeout")
     set_timeout "${@:2}" ;;
+    "shell")
+    set_shell "${@:2}" ;;
     "--help"|"help")
     set_help ;;
     *)
@@ -177,6 +232,8 @@ function do_reset() {
       reset_tooling_image "${@:2}" ;;
     "timeout")
       reset_timeout "${@:2}" ;;
+    "shell")
+      reset_shell "${@:2}" ;;
     "--help"|"help")
       reset_help ;;
     *)
@@ -202,6 +259,8 @@ case $1 in
     help_or_error image_help "wtoctl image" "${@:2}" ;;
   "timeout")
     help_or_error timeout_help "wtoctl timeout" "${@:2}" ;;
+  "shell")
+    help_or_error shell_help "wtoctl shell" "${@:2}" ;;
   *)
     echo "Unknown command $1 for wtoctl"
     echo "Run 'wtoctl --help' for usage"

@@ -19,6 +19,7 @@ be used within a running terminal instance.
 Configurable fields:
   * image   - the image used for the Web Terminal
   * timeout - the time a Web Terminal may be idle before it is terminated
+  * shell   - the shell used for the Web Terminal (e.g. bash, zsh)
 
 Available commands:
   * get   - get the current value for a field
@@ -71,6 +72,19 @@ Examples:
 EOF
 }
 
+function shell_help() {
+  cat <<EOF
+The shell field defines the shell program used for the Web Terminal. By default,
+the /bin/bash is used. Currently, the shells bash (/bin/bash) and zsh (/bin/zsh)
+are available in the default Web Terminal image.
+
+If the selected shell is not present in the tooling image, the Web Terminal may
+fail to restart. If this occurs, the Web Terminal custom resource should be
+deleted by executing
+  oc delete devworkspace $DEVWORKSPACE_NAME --namespace $NAMESPACE
+EOF
+}
+
 function get_help() {
   cat <<EOF
 Gets the current value of a field.
@@ -78,6 +92,7 @@ Gets the current value of a field.
 Configurable fields:
   * image   - the image used for the Web Terminal
   * timeout - the time a Web Terminal may be idle before it is terminated
+  * shell   - the shell program used for the Web Terminal
 
 Usage:
   wtoctl get <field>
@@ -93,6 +108,7 @@ Sets a given field.
 Configurable fields:
   * image   - the image used for the Web Terminal
   * timeout - the duration a Web Terminal may be idle before it is terminated
+  * shell   - the shell program used for the Web Terminal
 
 Usage:
   wtoctl set <field> <value>
@@ -108,6 +124,7 @@ Resets a given field to its default value.
 Configurable fields:
   * image   - the image used for the terminal
   * timeout - the time a Web Terminal may be idle before it is terminated
+  * shell   - the shell program used for the Web Terminal
 
 Usage:
   wtoctl reset <field>
