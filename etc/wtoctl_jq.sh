@@ -57,53 +57,56 @@ export JQ_GET_TIMEOUT_SCRIPT='
   .value
 '
 
-# Set WEB_TERMINAL_IDLE_TIMEOUT env var in web-terminal-exec container on a
-# DevWorkspace. Expects argument $TIMEOUT to be the timeout to set
-export JQ_SET_TIMEOUT_SCRIPT='
+# Set environment variable in a container on a DevWorkspace. Expects arguments:
+#   - $COMPONENT : name of component (used for container name as well)
+#   - $NAME      : name of env var to set
+#   - $VALUE     : value for env var to set
+export JQ_SET_ENV_SCRIPT='
 .spec.template.components = [.spec.template.components[] |
-  if .name == "web-terminal-exec"
+  if .name == $COMPONENT
   then
     # If overrides section is empty, add entry to avoid error below
     if .plugin.components | length == 0
     then
-      .plugin.components = [{"name": "web-terminal-exec"}]
+      .plugin.components = [{"name": $COMPONENT}]
     else . end
     |
     # If a value is already set, update it. Otherwise, add new env var with specified value
     if (.plugin.components[].container.env | length > 0)
-        and any(.plugin.components[].container.env[]; .name == "WEB_TERMINAL_IDLE_TIMEOUT")
+        and any(.plugin.components[].container.env[]; .name == $NAME)
     then
       .plugin.components[0].container.env |=
-        map(if .name == "WEB_TERMINAL_IDLE_TIMEOUT" then .value = $TIMEOUT else . end)
+        map(if .name == $NAME then .value = $VALUE else . end)
     else
       .plugin.components[0].container.env += [{
-        "name": "WEB_TERMINAL_IDLE_TIMEOUT",
-        "value": $TIMEOUT
+        "name": $NAME,
+        "value": $VALUE
       }]
     end
   else . end
 ]
 '
 
-# Delete WEB_TERMINAL_IDLE_TIMEOUT env var override in web-terminal-exec
-# container on a DevWorkspace.
-export JQ_RESET_TIMEOUT_SCRIPT='
+# Delete environment variable override in container on a DevWorkspace. Expects arguments:
+#   - $COMPONENT : name of component (used for container name as well)
+#   - $NAME      : name of env var to set
+export JQ_RESET_ENV_SCRIPT='
 .spec.template.components = [.spec.template.components[] |
-  if .name == "web-terminal-exec"
+  if .name == $COMPONENT
   then
     # Add component to avoid iterate over null error
     if .plugin.components | length == 0
     then
-      .plugin.components = [{"name": "web-terminal-exec"}]
+      .plugin.components = [{"name": $COMPONENT}]
     else . end
     |
     # Remove idle timeout env var from overrides list, preserving existing entries if present
     if (.plugin.components[].container.env | length > 0) and
-        any(.plugin.components[].container.env[]; .name == "WEB_TERMINAL_IDLE_TIMEOUT")
+        any(.plugin.components[].container.env[]; .name == $NAME)
     then
       .plugin.components[].container.env -= [.plugin.components[].container.env[]
       |
-      select(.name == "WEB_TERMINAL_IDLE_TIMEOUT")]
+      select(.name == $NAME)]
       |
       # If env list is now empty, delete the field
       if .plugin.components[].container.env | length == 0
