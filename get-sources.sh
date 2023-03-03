@@ -13,23 +13,6 @@
 
 set -e
 
-updateSourcesFlag="false"
-printHelp="false"
-while [[ "$#" -gt 0 ]]; do
-  case $1 in
-    '-u'|'--update-sources') updateSourcesFlag="true"; shift 0;;
-    '-h'|'--help') printHelp="true"; shift 0;;
-  esac
-  shift 1
-done
-
-if [[ "$printHelp" == "true" ]]; then
-  echo "Usage:"
-  echo "-u, --update-sources - Update lookaside cache"
-  echo "-h, --help           - Print this message"
-  exit 0
-fi
-
 PROJECT_ROOT=${PROJECT_ROOT:-$(cd "$(dirname "$0")" || exit; pwd)}
 CONTAINER_ROOT_RELATIVE_PATH=".container-root"
 CONTAINER_ROOT_DIR="${PROJECT_ROOT}/${CONTAINER_ROOT_RELATIVE_PATH}"
@@ -127,9 +110,6 @@ chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
 cd "$PROJECT_ROOT"
 tar -czf container-root-x86_64.tgz -C "$CONTAINER_ROOT_RELATIVE_PATH" .
-if [[ "$updateSourcesFlag" = "true" ]]; then
-  rhpkg new-sources container-root-x86_64.tgz
-fi
 
 # NOTE: source code for submariner is stored in https://github.com/submariner-io/subctl,
 #       but built binaries are available only in https://github.com/submariner-io/releases/
