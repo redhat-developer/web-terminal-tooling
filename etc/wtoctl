@@ -110,6 +110,14 @@ function set_timeout() {
   fi
   expect_one_arg "wtoctl set timeout" "$@"
   local TIMEOUT="$1"
+
+  # Do some basic validation on timeout
+  duration_pattern='^-?([.0-9]+(h|m|s|ms))+$'
+  if ! [[ "$TIMEOUT" =~ $duration_pattern ]]; then
+    echo "Invalid timeout duration. See 'wtoctl timeout --help' for timeout format"
+    exit 1
+  fi
+
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
   UPDATED_JSON=$(echo "$DW_JSON" | \
     jq --arg COMPONENT "web-terminal-exec" \
