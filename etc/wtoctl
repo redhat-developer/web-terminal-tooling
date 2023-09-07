@@ -254,9 +254,18 @@ function reset_storage() {
     exit 0
   fi
   expect_no_args "wtoctl reset storage" "$@"
+  local DELETE_PVC PVC_NAME
+  PVC_NAME=$(oc get pvc -o json | jq -r "$JQ_GET_PVC_NAME_SCRIPT")
+  read -rp "Would you like to also delete the persistent volume claim used for storage (name: $PVC_NAME)? (y/N): " DELETE_PVC
+
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
   UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_STORAGE_SCRIPT")
   echo "$UPDATED_JSON" | oc apply -f -
+  if [[ "$DELETE_PVC" =~ ^(y|Y|yes|Yes) ]] ; then
+    oc delete pvc -n "$NAMESPACE" "$PVC_NAME"
+    echo "Deleted persistent volume claim $PVC_NAME"
+  fi
+
   echo "Reset Web Terminal storage. Terminal may restart"
 }
 
