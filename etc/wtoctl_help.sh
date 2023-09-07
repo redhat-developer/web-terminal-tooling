@@ -11,6 +11,22 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
+# Check to see if we can output colors
+if [ -t 1 ]; then
+  colors=$(tput colors)
+  if [ -n "$colors" ] && [ "$colors" -ge 8 ]; then
+    ERR='\033[0;31m'
+    WARN='\033[1;33m'
+    NC='\033[0m'
+  fi
+fi
+function warning() {
+  echo -e "${WARN}warning: $1${NC}"
+}
+function error() {
+  echo -e "${ERR}error: $1${NC}"
+}
+
 function general_help() {
   cat <<EOF
 wtoctl is a simple tool for customizing Web Terminals in OpenShift intended to
@@ -157,7 +173,7 @@ EOF
 function expect_no_args() {
   CMD_REF="$1"; shift
   if [[ $# -gt 0 ]]; then
-    echo "Unknown option '$*' for '$CMD_REF'"
+    error "Unknown option '$*' for '$CMD_REF'"
     echo "See '$CMD_REF --help' for usage"
     exit 1
   fi
@@ -166,13 +182,14 @@ function expect_no_args() {
 function expect_one_arg() {
   CMD_REF="$1"; shift
   if [[ $# -eq 0 ]]; then
-    echo "Command '$CMD_REF' expects an argument"
+    error "Command '$CMD_REF' expects an argument"
     echo "See '$CMD_REF --help' for usage."
     exit 1
   fi
   if [[ $# -gt 1 ]]; then
-    echo "Command '$CMD_REF' expect only one argument"
+    error "Command '$CMD_REF' expect only one argument"
     echo "See '$CMD_REF --help' for usage."
+    exit 1
   fi
 }
 
@@ -184,7 +201,7 @@ function help_or_error() {
     "--help"|"help")
       $HELP_CMD ;;
     *)
-      echo "Unknown option '$1' for '$CMD_REF'"
+      error "Unknown option '$1' for '$CMD_REF'"
       echo "See '$CMD_REF --help' for usage"
       exit 1
   esac
