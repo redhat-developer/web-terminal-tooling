@@ -347,6 +347,8 @@ case $1 in
     help_or_error timeout_help "wtoctl timeout" "${@:2}" ;;
   "shell")
     help_or_error shell_help "wtoctl shell" "${@:2}" ;;
+  "storage")
+    help_or_error storage_help "wtoctl storage" "${@:2}" ;;
   *)
     echo "Unknown command $1 for wtoctl"
     echo "Run 'wtoctl --help' for usage"
