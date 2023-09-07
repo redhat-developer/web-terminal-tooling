@@ -20,6 +20,7 @@ Configurable fields:
   * image   - the image used for the Web Terminal
   * timeout - the time a Web Terminal may be idle before it is terminated
   * shell   - the shell used for the Web Terminal (e.g. bash, zsh)
+  * storage - configure persistent storage to the Web Terminal
 
 Available commands:
   * get   - get the current value for a field
@@ -85,6 +86,23 @@ deleted by executing
 EOF
 }
 
+function storage_help() {
+  cat <<EOF
+This command allows for configuring persistent storage for the Web Terminal.
+Storage is added by mounting a persistent volume claim to this terminal,
+allowing for files to persist even if the terminal is shut down. When setting
+storage via 'wtoctl set storage', you will be prompted to specify the size of
+the volume required and the mount path within the terminal's container.
+
+Note that re-sizing persistent volume claims is currently not supported, so
+running the set command multiple times will not allow updating the volume size.
+
+If storage is misconfigured, the Web Terminal may fail to restart. If this
+occurs, the Web Terminal custom resource should be deleted by executing
+  oc delete devworkspace $DEVWORKSPACE_NAME --namespace $NAMESPACE
+EOF
+}
+
 function get_help() {
   cat <<EOF
 Gets the current value of a field.
@@ -93,6 +111,7 @@ Configurable fields:
   * image   - the image used for the Web Terminal
   * timeout - the time a Web Terminal may be idle before it is terminated
   * shell   - the shell program used for the Web Terminal
+  * storage - get current persistent storage configuration for the Web Terminal
 
 Usage:
   wtoctl get <field>
@@ -109,6 +128,7 @@ Configurable fields:
   * image   - the image used for the Web Terminal
   * timeout - the duration a Web Terminal may be idle before it is terminated
   * shell   - the shell program used for the Web Terminal
+  * storage - interactively configure storage for the current terminal
 
 Usage:
   wtoctl set <field> <value>
@@ -125,6 +145,7 @@ Configurable fields:
   * image   - the image used for the terminal
   * timeout - the time a Web Terminal may be idle before it is terminated
   * shell   - the shell program used for the Web Terminal
+  * storage - remove persistent storage from the Web Terminal
 
 Usage:
   wtoctl reset <field>
