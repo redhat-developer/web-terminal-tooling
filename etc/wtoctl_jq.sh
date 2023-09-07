@@ -123,3 +123,91 @@ export JQ_RESET_ENV_SCRIPT='
   else . end
 ]
 '
+
+# Return the size of configured volume for a terminal, or empty sting if storage
+# is not configured.
+export JQ_GET_STORAGE_SIZE_SCRIPT='
+if any(.spec.template.components[]; .name == "web-terminal-storage")
+then
+  .spec.template.components[] | select(.name == "web-terminal-storage") | .volume.size
+else
+  ""
+end
+'
+
+# Return a line summarizing the current persistent storage configuration for the terminal
+export JQ_GET_STORAGE_SCRIPT='
+if any(.spec.template.components[]; .name == "web-terminal-storage")
+then
+  (.spec.template.components[] | select(.name == "web-terminal-storage") | .volume.size) as $volume_size |
+  (.spec.template.components[] | select(.name == "web-terminal-tooling") | .plugin.components[0].container.volumeMounts[] | select(.name == "web-terminal-storage") | .path) as $mount_path |
+  "Persistent storage (\($volume_size)) is mounted to \($mount_path)"
+else
+  "Persistent storage is not configured"
+end
+'
+
+# Add volume and volume mount to web-terminal-tooling container in terminal. Expects arguments:
+#   - $VOLUME_SIZE : size of volume component
+#   - $MOUNT_PATH  : mount path for volume component
+export JQ_SET_STORAGE_SCRIPT='
+.spec.template.components = [.spec.template.components[] |
+  if .name == "web-terminal-tooling"
+  then
+    # Add overrides component if it is not present
+    if .plugin.components | length == 0
+    then
+      .plugin.components = [{"name": "web-terminal-tooling"}]
+    else . end
+    |
+    # Set image in container overrides
+    .plugin.components[0].container.volumeMounts = [
+      {
+        "name": "web-terminal-storage",
+        "path": $MOUNT_PATH
+      }
+    ]
+  elif .name == "web-terminal-storage"
+  then # Update volume if it already exists; this change may not be picked up
+    .volume.size = $VOLUME_SIZE
+  else . end
+]
+|
+if any(.spec.template.components[]; .name == "web-terminal-storage")
+then
+  # Volume component already exists, avoid adding a second one
+  .
+else
+  .spec.template.components += [
+    {
+      "name": "web-terminal-storage",
+      "volume": {
+        "size": $VOLUME_SIZE
+      }
+    }
+  ]
+end
+|
+.spec.template.attributes."controller.devfile.io/storage-type" = "per-workspace"
+'
+
+# Remove any persistent storage from workspace
+export JQ_RESET_STORAGE_SCRIPT='
+# Filter out volume compoennt
+.spec.template.components = [.spec.template.components[] | select(.name == "web-terminal-storage" | not)]
+|
+# Remove volume mounts from container
+.spec.template.components = [.spec.template.components[] |
+  if .name == "web-terminal-tooling"
+  then
+    del(.plugin.components[0].container.volumeMounts)
+  else . end
+]
+|
+# Remove per-workspace storage type attribute
+del(.spec.template.attributes."controller.devfile.io/storage-type") |
+if (.spec.template.attributes | length) == 0
+then
+  del(.spec.template.attributes)
+else . end
+'

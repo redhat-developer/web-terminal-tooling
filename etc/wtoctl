@@ -188,6 +188,78 @@ function reset_shell() {
   echo "Reset Web Terminal shell. Terminal may restart"
 }
 
+function get_storage() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Get persistent storage mounted to terminal"
+    echo "Usage: 'wtoctl get storage'"
+    exit 0
+  fi
+  expect_no_args "wtoctl get storage" "$@"
+  DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
+  STORAGE_SUMMARY=$(echo "$DW_JSON" | jq -r "$JQ_GET_STORAGE_SCRIPT")
+  echo "$STORAGE_SUMMARY"
+}
+
+function set_storage() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Add persistent storage to terminal"
+    echo "Usage: 'wtoctl set storage'"
+    exit 0
+  fi
+  expect_no_args "wtoctl set storage" "$@"
+  local STORAGE_SIZE MOUNT_PATH OK CURR_STORAGE_SIZE
+
+  DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
+  CURR_STORAGE_SIZE=$(echo "$DW_JSON" | jq -r "$JQ_GET_STORAGE_SIZE_SCRIPT")
+
+  if [ -z "$CURR_STORAGE_SIZE" ]; then
+    read -rp "Enter desired storage size (default: '100Mi'): " STORAGE_SIZE
+  else
+    echo "Persistent storage is already configured. Using existing size '$CURR_STORAGE_SIZE'"
+    STORAGE_SIZE="$CURR_STORAGE_SIZE"
+  fi
+  read -rp "Enter desired mount path (default: '/home/user/storage'): " MOUNT_PATH
+  if [ -z "$STORAGE_SIZE" ]; then
+    STORAGE_SIZE="100Mi"
+  fi
+  if [ -z "$MOUNT_PATH" ]; then
+    MOUNT_PATH="/home/user/storage"
+  fi
+
+  # Basic checks for storage parameters to avoid footguns
+  if [ -e "$MOUNT_PATH" ]; then
+    echo "warning: Mount path $MOUNT_PATH already exists in this container. Mounting storage will overwrite contents of $MOUNT_PATH."
+  fi
+  if ! [[ "$STORAGE_SIZE" =~ ^[.0-9]+(K|Ki|M|Mi|G|Gi) ]]; then
+    echo "warning: Unrecognized Kubernetes unit suffix for storage: $STORAGE_SIZE"
+  fi
+
+  read -rp "Adding persistent volume with size $STORAGE_SIZE to $MOUNT_PATH. Is this okay? (y/N): " OK
+  if [[ "$OK" =~ ^(y|Y|yes|Yes) ]] ; then
+    UPDATED_JSON=$(echo "$DW_JSON" | \
+      jq --arg VOLUME_SIZE "$STORAGE_SIZE" \
+         --arg MOUNT_PATH  "$MOUNT_PATH" \
+         "$JQ_SET_STORAGE_SCRIPT")
+    echo "$UPDATED_JSON" | oc apply -f -
+    echo "Updated Web Terminal storage. Terminal may restart"
+  else
+    echo "Not adding storage"
+  fi
+}
+
+function reset_storage() {
+  if [[ "$1" == "help" ]] || [[ "$1" == "--help" ]]; then
+    echo "Remove any mounted persistent storage from terminal"
+    echo "Usage: 'wtoctl reset storage'"
+    exit 0
+  fi
+  expect_no_args "wtoctl reset storage" "$@"
+  DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
+  UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_STORAGE_SCRIPT")
+  echo "$UPDATED_JSON" | oc apply -f -
+  echo "Reset Web Terminal storage. Terminal may restart"
+}
+
 function do_get() {
   if [[ $# -lt 1 ]]; then
     echo "wtoctl get expects additional arguments. See 'wtoctl get --help' for more information"
@@ -195,17 +267,19 @@ function do_get() {
   fi
   case $1 in
     "image")
-    get_tooling_image "${@:2}" ;;
+      get_tooling_image "${@:2}" ;;
     "timeout")
-    get_timeout "${@:2}" ;;
+      get_timeout "${@:2}" ;;
     "shell")
-    get_shell "${@:2}" ;;
+      get_shell "${@:2}" ;;
+    "storage")
+      get_storage "${@:2}" ;;
     "--help"|"help")
-    get_help ;;
+      get_help ;;
     *)
-    echo "Unknown option $1 for 'wtoctl get'"
-    echo "See 'wtoctl get --help' for usage."
-    exit 1
+      echo "Unknown option $1 for 'wtoctl get'"
+      echo "See 'wtoctl get --help' for usage."
+      exit 1
   esac
 }
 
@@ -216,17 +290,19 @@ function do_set() {
   fi
   case $1 in
     "image")
-    set_tooling_image "${@:2}" ;;
+      set_tooling_image "${@:2}" ;;
     "timeout")
-    set_timeout "${@:2}" ;;
+      set_timeout "${@:2}" ;;
     "shell")
-    set_shell "${@:2}" ;;
+      set_shell "${@:2}" ;;
+    "storage")
+      set_storage "${@:2}" ;;
     "--help"|"help")
-    set_help ;;
+      set_help ;;
     *)
-    echo "Unknown option $1 for 'wtoctl set'"
-    echo "See 'wtoctl set --help' for usage."
-    exit 1
+      echo "Unknown option $1 for 'wtoctl set'"
+      echo "See 'wtoctl set --help' for usage."
+      exit 1
   esac
 }
 
@@ -242,6 +318,8 @@ function do_reset() {
       reset_timeout "${@:2}" ;;
     "shell")
       reset_shell "${@:2}" ;;
+    "storage")
+      reset_storage "${@:2}" ;;
     "--help"|"help")
       reset_help ;;
     *)
