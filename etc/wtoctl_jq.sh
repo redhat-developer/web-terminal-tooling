@@ -211,3 +211,10 @@ then
   del(.spec.template.attributes)
 else . end
 '
+
+# Get the name of the PVC that is used for this workspace's storage. Expects argument
+#   - $DEVWORKSPACE_NAME : name of the terminal's DevWorkspace
+export JQ_GET_PVC_NAME_SCRIPT='.items[]
+| select((.metadata.ownerReferences | length) > 0)
+| select(any(.metadata.ownerReferences[]; .controller == true and .kind == "DevWorkspace" and .name == $DEVWORKSPACE_NAME))
+| .metadata.name'
