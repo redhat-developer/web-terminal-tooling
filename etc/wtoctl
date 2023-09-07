@@ -262,7 +262,7 @@ function reset_storage() {
   UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_STORAGE_SCRIPT")
   echo "$UPDATED_JSON" | oc apply -f -
   if [[ "$DELETE_PVC" =~ ^(y|Y|yes|Yes) ]] ; then
-    oc delete pvc -n "$NAMESPACE" "$PVC_NAME"
+    oc delete pvc -n "$NAMESPACE" "$PVC_NAME" --wait=false
     echo "Deleted persistent volume claim $PVC_NAME"
   fi
 
