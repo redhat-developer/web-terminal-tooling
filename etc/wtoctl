@@ -28,7 +28,7 @@ if [[ $# -lt 1 ]]; then
 fi
 
 function preflight_checks() {
-  if [ -z $NAMESPACE ] || [ ! -f $DEVWORKSPACE_FLATTENED_DEVFILE ]; then
+  if [ -z "$NAMESPACE" ] || [ ! -f "$DEVWORKSPACE_FLATTENED_DEVFILE" ]; then
     echo "Container does not appear to be running in an OpenShift cluster -- wtoctl commands are unavailable"
     exit 1
   fi
@@ -228,10 +228,10 @@ function set_storage() {
 
   # Basic checks for storage parameters to avoid footguns
   if [ -e "$MOUNT_PATH" ]; then
-    echo "warning: Mount path $MOUNT_PATH already exists in this container. Mounting storage will overwrite contents of $MOUNT_PATH."
+    warning "Mount path $MOUNT_PATH already exists in this container. Mounting storage will overwrite contents of $MOUNT_PATH."
   fi
   if ! [[ "$STORAGE_SIZE" =~ ^[.0-9]+(K|Ki|M|Mi|G|Gi) ]]; then
-    echo "warning: Unrecognized Kubernetes unit suffix for storage: $STORAGE_SIZE"
+    warning "Unrecognized Kubernetes unit suffix for storage: $STORAGE_SIZE"
   fi
 
   read -rp "Adding persistent volume with size $STORAGE_SIZE to $MOUNT_PATH. Is this okay? (y/N): " OK
@@ -255,7 +255,7 @@ function reset_storage() {
   fi
   expect_no_args "wtoctl reset storage" "$@"
   local DELETE_PVC PVC_NAME
-  PVC_NAME=$(oc get pvc -o json | jq -r "$JQ_GET_PVC_NAME_SCRIPT")
+  PVC_NAME=$(oc get pvc -o json | jq -r --arg DEVWORKSPACE_NAME "$DEVWORKSPACE_NAME" "$JQ_GET_PVC_NAME_SCRIPT")
   read -rp "Would you like to also delete the persistent volume claim used for storage (name: $PVC_NAME)? (y/N): " DELETE_PVC
 
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
