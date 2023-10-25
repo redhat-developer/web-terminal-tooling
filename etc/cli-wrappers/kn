@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+# Copyright (c) 2020-2023 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+
+#
+# This script is meant to serve as a wrapper for the `kn` CLI in order to 
+# facilitate downloading and updated version of the CLI from the cluster. 
+# It is meant to be placed in $PATH earlier than the actual `kn` CLI in order
+# to prompt the user to download `kn` instead of using the installed version.
+#
+
+set -e
+
+readonly PLATFORM="linux"
+readonly ARCH="amd64"
+
+readonly KN_DOWNLOAD_PATH="/tmp/cli-downloads"
+readonly BINARIES_PATH="/home/user/bin"
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
+
+# Save original arguments in order to call 'kn' later seamlessly
+ORIGINAL_ARGS=( "$@" )
+
+function error() {
+  echo "error: $1" >&2
+}
+
+function call_actual_kn() {
+  # Drop the script's directory from path to get the other installed kn
+  PATH=${PATH/${SCRIPT_DIR}:/}
+  kn "${ORIGINAL_ARGS[@]}"
+}
+
+function clean_up_wrapper_script() {
+  THIS_SCRIPT="${SCRIPT_DIR:?}/$(basename "$0")"
+  rm -rf "$THIS_SCRIPT"
+}
+
+function get_download_url() {
+  URL=$(oc get consoleclidownloads kn -o json | jq -r '.spec.links[].href' | grep "$PLATFORM" | grep "$ARCH")
+  if [ -z "$URL" ]; then
+    error "Could not get URL for 'kn' CLI"
+    return 1
+  fi
+  echo "$URL"
+}
+
+function download_kn() {
+  URL="$1"
+  mkdir -p "$KN_DOWNLOAD_PATH" "$BINARIES_PATH"
+  echo "Downloading kn from $URL"
+  curl "$URL" -o "$KN_DOWNLOAD_PATH/kn.tar.gz" 
+  echo "Extracting kn CLI"
+  tar -xf "$KN_DOWNLOAD_PATH/kn.tar.gz" -C "$KN_DOWNLOAD_PATH"
+  mv "$KN_DOWNLOAD_PATH/kn" "$BINARIES_PATH/"
+}
+
+function prompt_user() {
+  if ! KN_URL=$(get_download_url); then
+    # Can't get URL to download kn so just use the default
+    call_actual_kn
+    exit 0
+  fi
+  echo "Detected serverless installation in this cluster."
+  echo "The 'kn' CLI is available at: $KN_URL"
+  read -rp "Would you like to automatically download 'kn' from this URL instead of using the built-in version? (y/N): " OK
+  echo ""
+  if [[ "$OK" =~ ^(y|Y|yes|Yes) ]] ; then
+    download_kn "$KN_URL"
+    clean_up_wrapper_script
+  elif [[ "$OK" =~ ^(n|N|no|No) ]] ; then
+    clean_up_wrapper_script
+  fi
+  call_actual_kn
+}
+
+prompt_user
