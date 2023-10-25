@@ -28,6 +28,7 @@ readonly BINARIES_PATH="/home/user/bin"
 
 readonly PREF_USE_DOWNLOADED="use-downloaded"
 readonly PREF_USE_INSTALLED="use-installed"
+readonly PREF_CANNOT_DOWNLOAD="no-download"
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 readonly LOG_FILE="$SCRIPT_DIR/kn-wrapper.log"
@@ -65,7 +66,16 @@ function call_actual_kn() {
 }
 
 function get_download_url() {
-  URL=$(oc get consoleclidownloads kn -o json | jq -r '.spec.links[].href' | grep "$PLATFORM" | grep "$ARCH")
+  if ! oc auth can-i get consoleclidownloads --all-namespaces -q 2>>"$LOG_FILE"; then
+    error "Current user cannot get consoleclidownloads"
+    return 1
+  fi
+  CLI_DOWNLOAD_JSON=$(oc get consoleclidownloads kn -o json 2>>"$LOG_FILE")
+  if [ -z "$CLI_DOWNLOAD_JSON" ]; then
+    error "ConsoleCLIDownload 'kn' not found"
+    return 1
+  fi
+  URL=$(echo "$CLI_DOWNLOAD_JSON" | jq -r '.spec.links[].href' 2>>"$LOG_FILE"| grep "$PLATFORM" | grep "$ARCH")
   if [ -z "$URL" ]; then
     error "Could not get URL for 'kn' CLI"
     return 1
@@ -74,10 +84,14 @@ function get_download_url() {
   echo "$URL"
 }
 
-function download_kn() {
+function need_download() {
   if [ -x "$BINARIES_PATH/kn" ]; then
-    return
+    return 1
   fi
+  return 0
+}
+
+function download_kn() {
   URL="$1"
   mkdir -p "$KN_DOWNLOAD_PATH" "$BINARIES_PATH" >> "$LOG_FILE" 2>&1 || return 1
   info "Downloading kn from $URL"
@@ -93,6 +107,7 @@ function download_kn() {
 function prompt_user() {
   if ! KN_URL=$(get_download_url); then
     # Can't get URL to download kn so just use the default
+    save_preference "$PREF_CANNOT_DOWNLOAD"
     call_actual_kn
     exit 0
   fi
@@ -115,7 +130,22 @@ function prompt_user() {
 
 PREF=$(read_preferences)
 case "$PREF" in
-  "$PREF_USE_DOWNLOADED") download_kn; call_actual_kn ;;
+  "$PREF_USE_DOWNLOADED")
+    if need_download; then
+      if ! KN_URL=$(get_download_url); then
+        # Can't get URL to download kn so just use the default
+        save_preference "$PREF_CANNOT_DOWNLOAD"
+        call_actual_kn
+        exit 0
+      fi
+      if ! download_kn "$KN_URL"; then
+        error "Failed to re-download kn"
+        save_preference "$PREF_CANNOT_DOWNLOAD"
+      fi
+    fi
+    call_actual_kn
+    ;;
   "$PREF_USE_INSTALLED") call_actual_kn ;;
+  "$PREF_CANNOT_DOWNLOAD") call_actual_kn ;;
   *) prompt_user ;;
 esac
