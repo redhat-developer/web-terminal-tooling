@@ -30,11 +30,21 @@ readonly PREF_USE_DOWNLOADED="use-downloaded"
 readonly PREF_USE_INSTALLED="use-installed"
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
+readonly LOG_FILE="$SCRIPT_DIR/kn-wrapper.log"
+
 # Save original arguments in order to call 'kn' later seamlessly
 ORIGINAL_ARGS=( "$@" )
 
 function error() {
-  echo "error: $1" >&2
+  local timestamp
+  timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  echo "[$timestamp ERROR] $1" >> "$LOG_FILE"
+}
+
+function info() {
+  local timestamp
+  timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  echo "[$timestamp INFO ] $1" >> "$LOG_FILE"
 }
 
 function save_preference() {
@@ -60,6 +70,7 @@ function get_download_url() {
     error "Could not get URL for 'kn' CLI"
     return 1
   fi
+  info "Found consoleclidownload for kn with URL $URL"
   echo "$URL"
 }
 
@@ -68,12 +79,15 @@ function download_kn() {
     return
   fi
   URL="$1"
-  mkdir -p "$KN_DOWNLOAD_PATH" "$BINARIES_PATH"
-  echo "Downloading kn from $URL"
-  curl "$URL" -o "$KN_DOWNLOAD_PATH/kn.tar.gz"
-  echo "Extracting kn CLI"
-  tar -xf "$KN_DOWNLOAD_PATH/kn.tar.gz" -C "$KN_DOWNLOAD_PATH"
-  mv "$KN_DOWNLOAD_PATH/kn" "$BINARIES_PATH/kn"
+  mkdir -p "$KN_DOWNLOAD_PATH" "$BINARIES_PATH" >> "$LOG_FILE" 2>&1 || return 1
+  info "Downloading kn from $URL"
+  curl "$URL" -o "$KN_DOWNLOAD_PATH/kn.tar.gz" >> "$LOG_FILE" 2>&1 || return 1
+  info "Downloaded kn archive to $KN_DOWNLOAD_PATH/kn.tar.gz"
+  info "Extracting kn CLI to $KN_DOWNLOAD_PATH"
+  tar -xf "$KN_DOWNLOAD_PATH/kn.tar.gz" -C "$KN_DOWNLOAD_PATH" >> "$LOG_FILE" 2>&1 || return 1
+  info "Extracted kn CLI to $KN_DOWNLOAD_PATH"
+  mv "$KN_DOWNLOAD_PATH/kn" "$BINARIES_PATH/kn" || return 1
+  info "Moved kn CLI to $BINARIES_PATH/kn"
 }
 
 function prompt_user() {
@@ -86,8 +100,12 @@ function prompt_user() {
   echo "The 'kn' CLI is available at: $KN_URL"
   read -rp "Would you like to automatically download 'kn' from this URL instead of using the built-in version? (y/N): " OK
   echo ""
+  info "Received response '$OK' for prompt"
   if [[ "$OK" =~ ^(y|Y|yes|Yes) ]] ; then
-    download_kn "$KN_URL"
+    if ! download_kn "$KN_URL"; then
+      echo "Failed to download CLI. See log file $LOG_FILE for details"
+      exit 1
+    fi
     save_preference "$PREF_USE_DOWNLOADED"
   elif [[ "$OK" =~ ^(n|N|no|No) ]] ; then
     save_preference "$PREF_USE_INSTALLED"
