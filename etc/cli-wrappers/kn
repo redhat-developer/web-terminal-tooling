@@ -29,9 +29,12 @@ readonly BINARIES_PATH="/home/user/bin"
 readonly PREF_USE_DOWNLOADED="use-downloaded"
 readonly PREF_USE_INSTALLED="use-installed"
 readonly PREF_CANNOT_DOWNLOAD="no-download"
+readonly DEVWORKSPACE_PREF_ANNOTATION="web-terminal.redhat.io/kn-wrapper-preference"
+readonly DEVWORKSPACE_PREF_ANNOTATION_ESCAPED="web-terminal\.redhat\.io/kn-wrapper-preference"
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 readonly LOG_FILE="$SCRIPT_DIR/kn-wrapper.log"
+readonly PREFS_FILE="$SCRIPT_DIR/kn-wrapper-preferences"
 
 # Save original arguments in order to call 'kn' later seamlessly
 ORIGINAL_ARGS=( "$@" )
@@ -50,12 +53,25 @@ function info() {
 
 function save_preference() {
   local PREF="$1"
-  echo "$PREF" > "$SCRIPT_DIR/kn-preferences"
+  echo "$PREF" > "$PREFS_FILE"
+  info "Adding annotation to DevWorkspace to save download preference"
+  oc annotate dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" "$DEVWORKSPACE_PREF_ANNOTATION=$PREF" >>"$LOG_FILE" 2>&1
 }
 
 function read_preferences() {
-  if [ -f "$SCRIPT_DIR/kn-preferences" ]; then
-    cat "$SCRIPT_DIR/kn-preferences"
+  if [ -f "$PREFS_FILE" ]; then
+    cat "$PREFS_FILE"
+    return
+  fi
+  info "No preference file found, attempting to read preference from DevWorkspace annotations"
+  ANNOTATION_PREF=$(oc get dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" -o jsonpath="{.metadata.annotations.$DEVWORKSPACE_PREF_ANNOTATION_ESCAPED}" 2>>"$LOG_FILE")
+  if [ -n "$ANNOTATION_PREF" ]; then
+    # Save preference from workspace to file to avoid having to make API calls all the time
+    info "Read preference $ANNOTATION_PREF from DevWorkspace"
+    echo "$ANNOTATION_PREF" > "$PREFS_FILE"
+    echo "$ANNOTATION_PREF"
+  else
+    info "Could not find preference in DevWorkspace annotations"
   fi
 }
 
