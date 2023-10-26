@@ -16,23 +16,44 @@
 # facilitate downloading and updated version of the CLI from the cluster.
 # It is meant to be placed in $PATH earlier than the actual `kn` CLI in order
 # to prompt the user to download `kn` instead of using the installed version.
+# The user's decision is saved, so they are only prompted once; subsequent calls
+# to this wrapper script will transparently call 'kn' (downloaded or default)
+# with all provided arguments
+#
+# This wrapper does not output to stdout/stderr to avoid cluttering the terminal
+# (except when prompting the user to download the binary from the cluster). All
+# output is redirected to a log file named `kn-wrapper.log` in the script's
+# directory
+#
+# This wrapper script takes two wrapper-specific arguments to facilitate easier
+# setup:
+#   --wto-reset-preferences   - Reset any saved preferences and remove existing
+#                               downloaded 'kn' binary, if it exists.
+#   --wto-restore-preferences - Non-interactively read preferences and download
+#                               'kn' from the cluster if necessary. This is used
+#                               for initial setup when the Web Terminal starts.
+#   --wto-show-logs           - Print internal log file to standard out
 #
 
 set -e
 
+SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
+
 readonly PLATFORM="linux"
 readonly ARCH="amd64"
 
+# Directories used in wrapper
 readonly KN_DOWNLOAD_PATH="/tmp/cli-downloads"
 readonly BINARIES_PATH="/home/user/bin"
 
+# Internal preferences and constants
 readonly PREF_USE_DOWNLOADED="use-downloaded"
 readonly PREF_USE_INSTALLED="use-installed"
 readonly PREF_CANNOT_DOWNLOAD="no-download"
 readonly DEVWORKSPACE_PREF_ANNOTATION="web-terminal.redhat.io/kn-wrapper-preference"
 readonly DEVWORKSPACE_PREF_ANNOTATION_ESCAPED="web-terminal\.redhat\.io/kn-wrapper-preference"
 
-SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
+# Paths for storing logs and preferences
 readonly LOG_FILE="$SCRIPT_DIR/kn-wrapper.log"
 readonly PREFS_FILE="$SCRIPT_DIR/kn-wrapper-preferences"
 
@@ -42,28 +63,56 @@ readonly ARG_RESET_WRAPPER="--wto-reset-preferences"
 readonly ARG_RESTORE_PREFERENCES="--wto-restore-preferences"
 readonly ARG_PRINT_LOG="--wto-show-logs"
 
-# Save original arguments in order to call 'kn' later seamlessly
+declare KN_DOWNLOAD_URL
+
+# Save original arguments in order to call 'kn' seamlessly later
 ORIGINAL_ARGS=( "$@" )
 
+function internal_args_help() {
+  cat <<EOF
+Supported internal arguments:
+  --wto-reset-preferences   - Reset any saved preferences and remove existing
+                              downloaded 'kn' binary, if it exists.
+  --wto-restore-preferences - Non-interactively read preferences and download
+                              'kn' from the cluster if necessary. This is used
+                              for initial setup when the Web Terminal starts.
+  --wto-show-logs           - Print internal log file to standard out
+EOF
+}
+
+# Call the wrapped 'kn' binary using the originally-provided arguments
+function call_actual_kn() {
+  # Drop the script's directory from path to get the _other_ installed kn
+  PATH=${PATH/${SCRIPT_DIR}:/}
+  kn "${ORIGINAL_ARGS[@]}"
+}
+
+# Log message with timestamp and error tag to the internal log file
 function error() {
   local timestamp
   timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   echo "[$timestamp ERROR] $1" >> "$LOG_FILE"
 }
 
+# Log message with timestamp and info tag to the internal log file
 function info() {
   local timestamp
   timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   echo "[$timestamp INFO ] $1" >> "$LOG_FILE"
 }
 
+# Save user preference (download or don't) to file and DevWorkspace annotation
 function save_preference() {
   local PREF="$1"
+  info "Saving preference $PREF"
   echo "$PREF" > "$PREFS_FILE"
   info "Adding annotation to DevWorkspace to save download preference"
   oc annotate dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" "$DEVWORKSPACE_PREF_ANNOTATION=$PREF" >>"$LOG_FILE" 2>&1
 }
 
+# Read preferences. If preference file exists, read from there; otherwise, read from DevWorkspace annotations on cluster
+# If preference is read from DevWorkspace, save this preference to the preference file to speed up future calls.
+# This function prints the detected preference, if any.
 function read_preferences() {
   if [ -f "$PREFS_FILE" ]; then
     cat "$PREFS_FILE"
@@ -81,18 +130,18 @@ function read_preferences() {
   fi
 }
 
+# Reset any saved preferences (both in the preferences file and DevWorkspace annotations) and remove downloaded 'kn'
+# binary, if present
 function reset_wrapper() {
   info "Resetting kn download preference and removing downloaded binary"
   rm -rf "$PREFS_FILE"
   rm -rf "$BINARIES_PATH/kn"
+  oc annotate dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" "${DEVWORKSPACE_PREF_ANNOTATION}-" >>"$LOG_FILE" 2>&1
 }
 
-function call_actual_kn() {
-  # Drop the script's directory from path to get the other installed kn
-  PATH=${PATH/${SCRIPT_DIR}:/}
-  kn "${ORIGINAL_ARGS[@]}"
-}
-
+# Try to read download URL from ConsoleCLIDownloads custom resources on the cluster. If we cannot get a URL for kn,
+# returns status code 1; otherwise, prints the URL. This function is relatively slow due to the API calls; function
+# cache_download_url() should be used instead in most cases.
 function get_download_url() {
   if ! oc auth can-i get consoleclidownloads --all-namespaces -q 2>>"$LOG_FILE"; then
     error "Current user cannot get consoleclidownloads"
@@ -112,6 +161,23 @@ function get_download_url() {
   echo "$URL"
 }
 
+# Lazy-load the download URL for the kn binary. If we haven't already loaded it, attempt to read the URL from the cluster
+# via get_download_url(). After calling this function $KN_DOWNLOAD_URL stores the URL for downloading, or is empty if
+# kn cannot be downloaded
+function cache_download_url() {
+  # We have to be careful here; the URL can either be an actual URL or empty if e.g. kn is not available on the cluster
+  # Variable expansion '${VAR+set}' will be empty only if the variable is unset or null
+  if [ -z "${KN_DOWNLOAD_URL+set}" ]; then
+    # URL is still unset (i.e. this is the first call to this function). Try to read URL from cluster
+    if ! KN_DOWNLOAD_URL=$(get_download_url); then
+      # Can't get URL to download kn; save this as preference to stop trying
+      save_preference "$PREF_CANNOT_DOWNLOAD"
+      KN_DOWNLOAD_URL=""
+    fi
+  fi
+}
+
+# Returns 0 if 'kn' is already downloaded, and 1 otherwise
 function need_download() {
   if [ -x "$BINARIES_PATH/kn" ]; then
     return 1
@@ -119,11 +185,16 @@ function need_download() {
   return 0
 }
 
+# Download and extract kn CLI from cluster. Downloaded CLI is saved to $BINARIES_PATH. Logs issues to $LOG_FILE and
+# returns 1 on error.
 function download_kn() {
-  URL="$1"
+  cache_download_url
+  if [ "$KN_DOWNLOAD_URL" == "" ]; then
+    return 1
+  fi
   mkdir -p "$KN_DOWNLOAD_PATH" "$BINARIES_PATH" >> "$LOG_FILE" 2>&1 || return 1
-  info "Downloading kn from $URL"
-  curl "$URL" -o "$KN_DOWNLOAD_PATH/kn.tar.gz" >> "$LOG_FILE" 2>&1 || return 1
+  info "Downloading kn from $KN_DOWNLOAD_URL"
+  curl "$KN_DOWNLOAD_URL" -o "$KN_DOWNLOAD_PATH/kn.tar.gz" >> "$LOG_FILE" 2>&1 || return 1
   info "Downloaded kn archive to $KN_DOWNLOAD_PATH/kn.tar.gz"
   info "Extracting kn CLI to $KN_DOWNLOAD_PATH"
   tar -xf "$KN_DOWNLOAD_PATH/kn.tar.gz" -C "$KN_DOWNLOAD_PATH" >> "$LOG_FILE" 2>&1 || return 1
@@ -132,20 +203,30 @@ function download_kn() {
   info "Moved kn CLI to $BINARIES_PATH/kn"
 }
 
+# Check if kn is downloaded from the cluster and download it if not
+function ensure_downloaded() {
+  if need_download && ! download_kn; then
+    error "Failed to re-download binary"
+  fi
+}
+
+# Interactively prompt the user whether they want to download the 'kn' binary from the cluster before
+# continuing. If the user responds yes or no, this preference is saved for future use (if the user provides no
+# response, no download is performed and the preference is _not_ saved)
 function prompt_user() {
-  if ! KN_URL=$(get_download_url); then
+  cache_download_url
+  if [ "$KN_DOWNLOAD_URL" == "" ]; then
     # Can't get URL to download kn so just use the default
-    save_preference "$PREF_CANNOT_DOWNLOAD"
     call_actual_kn
     exit 0
   fi
-  echo "Detected serverless installation in this cluster."
-  echo "The 'kn' CLI is available at: $KN_URL"
+  echo "Detected OpenShift Serverless installation in this cluster."
+  echo "The 'kn' CLI is available at: $KN_DOWNLOAD_URL"
   read -rp "Would you like to automatically download 'kn' from this URL instead of using the built-in version? (y/N): " OK
   echo ""
   info "Received response '$OK' for prompt"
   if [[ "$OK" =~ ^(y|Y|yes|Yes) ]] ; then
-    if ! download_kn "$KN_URL"; then
+    if ! download_kn; then
       echo "Failed to download CLI. See log file $LOG_FILE for details"
       exit 1
     fi
@@ -153,42 +234,33 @@ function prompt_user() {
   elif [[ "$OK" =~ ^(n|N|no|No) ]] ; then
     save_preference "$PREF_USE_INSTALLED"
   fi
-  call_actual_kn
 }
 
+# Check arguments specific to this wrapper script; these are useful for debugging and initial setup.
 function check_wrapper_arguments() {
   if [[ $# != 1 ]]; then
     return
   fi
   case "$1" in
     "$ARG_RESET_WRAPPER")
-  reset_wrapper
-  exit 0
+      reset_wrapper
+      exit 0
     ;;
     "$ARG_RESTORE_PREFERENCES")
       PREF=$(read_preferences)
       if [ "$PREF" == "$PREF_USE_DOWNLOADED" ]; then
-  info "Restoring preference $PREF in initial setup"
-  if need_download; then
-    if ! KN_URL=$(get_download_url); then
-      # Can't get URL to download kn so just use the default
-      save_preference "$PREF_CANNOT_DOWNLOAD"
-      exit 0
-    fi
-    if ! download_kn "$KN_URL"; then
-      error "Failed to re-download kn"
-      save_preference "$PREF_CANNOT_DOWNLOAD"
-    fi
-  fi
+        info "Restoring preference $PREF in initial setup"
+        ensure_downloaded
       fi
       exit 0
     ;;
     "$ARG_PRINT_LOG")
       cat "$LOG_FILE"
-  exit 0
+      exit 0
     ;;
     --wto-*)
       echo "Invalid wrapper argument $1"
+      internal_args_help
       exit 1
   esac
 }
@@ -198,21 +270,17 @@ check_wrapper_arguments "$@"
 PREF=$(read_preferences)
 case "$PREF" in
   "$PREF_USE_DOWNLOADED")
-    if need_download; then
-      if ! KN_URL=$(get_download_url); then
-        # Can't get URL to download kn so just use the default
-        save_preference "$PREF_CANNOT_DOWNLOAD"
-        call_actual_kn
-        exit 0
-      fi
-      if ! download_kn "$KN_URL"; then
-        error "Failed to re-download kn"
-        save_preference "$PREF_CANNOT_DOWNLOAD"
-      fi
-    fi
+    ensure_downloaded
     call_actual_kn
     ;;
-  "$PREF_USE_INSTALLED") call_actual_kn ;;
-  "$PREF_CANNOT_DOWNLOAD") call_actual_kn ;;
-  *) prompt_user ;;
+  "$PREF_USE_INSTALLED")
+    call_actual_kn
+    ;;
+  "$PREF_CANNOT_DOWNLOAD")
+    call_actual_kn
+    ;;
+  *)
+    prompt_user
+    call_actual_kn
+    ;;
 esac
