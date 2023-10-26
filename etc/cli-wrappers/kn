@@ -36,6 +36,12 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 readonly LOG_FILE="$SCRIPT_DIR/kn-wrapper.log"
 readonly PREFS_FILE="$SCRIPT_DIR/kn-wrapper-preferences"
 
+# Wrapper-specific arguments, prefixed by 'wto' to avoid colliding with any arguments
+# in the wrapped binary
+readonly ARG_RESET_WRAPPER="--wto-reset-preferences"
+readonly ARG_RESTORE_PREFERENCES="--wto-restore-preferences"
+readonly ARG_PRINT_LOG="--wto-show-logs"
+
 # Save original arguments in order to call 'kn' later seamlessly
 ORIGINAL_ARGS=( "$@" )
 
@@ -73,6 +79,12 @@ function read_preferences() {
   else
     info "Could not find preference in DevWorkspace annotations"
   fi
+}
+
+function reset_wrapper() {
+  info "Resetting kn download preference and removing downloaded binary"
+  rm -rf "$PREFS_FILE"
+  rm -rf "$BINARIES_PATH/kn"
 }
 
 function call_actual_kn() {
@@ -143,6 +155,45 @@ function prompt_user() {
   fi
   call_actual_kn
 }
+
+function check_wrapper_arguments() {
+  if [[ $# != 1 ]]; then
+    return
+  fi
+  case "$1" in
+    "$ARG_RESET_WRAPPER")
+  reset_wrapper
+  exit 0
+    ;;
+    "$ARG_RESTORE_PREFERENCES")
+      PREF=$(read_preferences)
+      if [ "$PREF" == "$PREF_USE_DOWNLOADED" ]; then
+  info "Restoring preference $PREF in initial setup"
+  if need_download; then
+    if ! KN_URL=$(get_download_url); then
+      # Can't get URL to download kn so just use the default
+      save_preference "$PREF_CANNOT_DOWNLOAD"
+      exit 0
+    fi
+    if ! download_kn "$KN_URL"; then
+      error "Failed to re-download kn"
+      save_preference "$PREF_CANNOT_DOWNLOAD"
+    fi
+  fi
+      fi
+      exit 0
+    ;;
+    "$ARG_PRINT_LOG")
+      cat "$LOG_FILE"
+  exit 0
+    ;;
+    --wto-*)
+      echo "Invalid wrapper argument $1"
+      exit 1
+  esac
+}
+
+check_wrapper_arguments "$@"
 
 PREF=$(read_preferences)
 case "$PREF" in
