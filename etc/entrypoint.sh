@@ -18,4 +18,7 @@ fi
 # Copy files in $INITIAL_CONFIG to $HOME without overwriting existing files
 find "$INITIAL_CONFIG" -mindepth 1 -exec cp -nrp {} "${HOME}/" \;
 
+# Restore configuration of 'kn' wrapper if a user previously set a preference
+"$WRAPPER_BINARIES"/kn --wto-restore-preferences
+
 exec "$@"
