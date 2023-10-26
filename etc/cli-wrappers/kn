@@ -44,7 +44,7 @@ readonly ARCH="amd64"
 
 # Directories used in wrapper
 readonly KN_DOWNLOAD_PATH="/tmp/cli-downloads"
-readonly BINARIES_PATH="/home/user/bin"
+readonly BINARIES_PATH="${DOWNLOADED_BINARIES:-/home/user/bin}"
 
 # Internal preferences and constants
 readonly PREF_USE_DOWNLOADED="use-downloaded"

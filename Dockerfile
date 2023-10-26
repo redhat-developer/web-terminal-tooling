@@ -7,10 +7,12 @@ USER 0
 # configuration that can still be overridden if necessary (the copy does not overwrite
 # existing files)
 ENV INITIAL_CONFIG=/tmp/initial_config
+ENV WRAPPER_BINARIES=/wto/bin
+ENV DOWNLOADED_BINARIES=/wto/bin/downloaded
 ENV HOME=/home/user
 WORKDIR /home/user
 
-RUN mkdir -p /home/user $INITIAL_CONFIG && \
+RUN mkdir -p /home/user $INITIAL_CONFIG $WRAPPER_BINARIES $DOWNLOADED_BINARIES && \
     microdnf update -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms && \
     microdnf install -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms \
     # bash completion tools
@@ -49,10 +51,11 @@ RUN \
 COPY etc/initial_config /tmp/initial_config
 COPY etc/get-tooling-versions.sh /tmp/get-tooling-versions.sh
 COPY ["etc/wtoctl", "etc/wtoctl_help.sh", "etc/wtoctl_jq.sh", "/usr/local/bin/"]
+COPY ["etc/cli-wrappers/*", "${WRAPPER_BINARIES}/"]
 COPY etc/entrypoint.sh /entrypoint.sh
 
 # Change permissions to let root group access necessary files
-RUN for f in "${HOME}" "${INITIAL_CONFIG}" "/etc/passwd" "/etc/group"; do \
+RUN for f in "${HOME}" "${INITIAL_CONFIG}" "${WRAPPER_BINARIES}" "${DOWNLOADED_BINARIES}" "/etc/passwd" "/etc/group"; do \
     echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
     chmod -R g+rwX ${f}; \
     done && \
@@ -62,7 +65,10 @@ RUN for f in "${HOME}" "${INITIAL_CONFIG}" "/etc/passwd" "/etc/group"; do \
     rm -f /tmp/get-tooling-versions.sh
 
 USER 1001
-ENV SHELL /bin/bash
+
+ENV SHELL=/bin/bash
+ENV PATH="${WRAPPER_BINARIES}:${DOWNLOADED_BINARIES}:${PATH}"
+
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 ENV SUMMARY="Web Terminal - Tooling container" \
