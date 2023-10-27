@@ -60,9 +60,9 @@ RUN for f in "${HOME}" "${INITIAL_CONFIG}" "${WRAPPER_BINARIES}" "${DOWNLOADED_B
     chmod -R g+rwX ${f}; \
     done && \
     /tmp/get-tooling-versions.sh > /tmp/installed_tools.txt && \
+    chmod g+rw /tmp/installed_tools.txt && \
     echo "Installed tools:" && \
-    cat /tmp/installed_tools.txt && \
-    rm -f /tmp/get-tooling-versions.sh
+    cat /tmp/installed_tools.txt
 
 USER 1001
 
