@@ -47,15 +47,15 @@ readonly KN_DOWNLOAD_PATH="/tmp/cli-downloads"
 readonly BINARIES_PATH="${DOWNLOADED_BINARIES:-/home/user/bin}"
 
 # Internal preferences and constants
-readonly PREF_USE_DOWNLOADED="use-downloaded"
-readonly PREF_USE_INSTALLED="use-installed"
-readonly PREF_CANNOT_DOWNLOAD="no-download"
-readonly DEVWORKSPACE_PREF_ANNOTATION="web-terminal.redhat.io/kn-wrapper-preference"
-readonly DEVWORKSPACE_PREF_ANNOTATION_ESCAPED="web-terminal\.redhat\.io/kn-wrapper-preference"
+readonly VAL_USE_DOWNLOADED="use-downloaded"
+readonly VAL_USE_INSTALLED="use-installed"
+readonly VAL_CANNOT_DOWNLOAD="no-download"
+readonly ANNOTATION_PREF_SHOULD_DOWNLOAD="web-terminal.redhat.io/kn-wrapper-should-download"
+readonly ANNOTATION_PREF_DOWNLOAD_URL="web-terminal.redhat.io/kn-wrapper-download-url"
 
 # Paths for storing logs and preferences
 readonly LOG_FILE="$SCRIPT_DIR/kn-wrapper.log"
-readonly PREFS_FILE="$SCRIPT_DIR/kn-wrapper-preferences"
+readonly PREFS_FILE="$SCRIPT_DIR/kn-wrapper.preferences"
 
 # Wrapper-specific arguments, prefixed by 'wto' to avoid colliding with any arguments
 # in the wrapped binary
@@ -63,6 +63,12 @@ readonly ARG_RESET_WRAPPER="--wto-reset-preferences"
 readonly ARG_RESTORE_PREFERENCES="--wto-restore-preferences"
 readonly ARG_PRINT_LOG="--wto-show-logs"
 
+# Env vars for preferences. These should be loaded from the $PREFS_FILE if it exists, or read from
+# the DevWorkspace annotations if not.
+declare PREF_SHOULD_DOWNLOAD
+declare PREF_DOWNLOAD_URL
+
+# Cached download URL to avoid making multiple API calls
 declare KN_DOWNLOAD_URL
 
 # Save original arguments in order to call 'kn' seamlessly later
@@ -91,43 +97,47 @@ function call_actual_kn() {
 function error() {
   local timestamp
   timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-  echo "[$timestamp ERROR] $1" >> "$LOG_FILE"
+  echo -e "[$timestamp ERROR] $1" >> "$LOG_FILE"
 }
 
 # Log message with timestamp and info tag to the internal log file
 function info() {
   local timestamp
   timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-  echo "[$timestamp INFO ] $1" >> "$LOG_FILE"
+  echo -e "[$timestamp INFO ] $1" >> "$LOG_FILE"
 }
 
-# Save user preference (download or don't) to file and DevWorkspace annotation
-function save_preference() {
-  local PREF="$1"
-  info "Saving preference $PREF"
-  echo "$PREF" > "$PREFS_FILE"
-  info "Adding annotation to DevWorkspace to save download preference"
-  oc annotate dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" "$DEVWORKSPACE_PREF_ANNOTATION=$PREF" >>"$LOG_FILE" 2>&1
+# Save user preferences to file and DevWorkspace annotations
+function save_preferences() {
+  echo PREF_SHOULD_DOWNLOAD="${PREF_SHOULD_DOWNLOAD}" > "$PREFS_FILE"
+  echo PREF_DOWNLOAD_URL="${PREF_DOWNLOAD_URL}" >> "$PREFS_FILE"
+  info "Saved preferences:\n$(sed 's|^|    |' "$PREFS_FILE")"
+  info "Adding annotations to DevWorkspace to save preferences between restarts"
+  oc annotate dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" --overwrite \
+    "${ANNOTATION_PREF_SHOULD_DOWNLOAD}=${PREF_SHOULD_DOWNLOAD}" \
+    "${ANNOTATION_PREF_DOWNLOAD_URL}=${PREF_DOWNLOAD_URL}" \
+    >>"$LOG_FILE" 2>&1
 }
 
-# Read preferences. If preference file exists, read from there; otherwise, read from DevWorkspace annotations on cluster
+# Read preferences. If preference file exists, set preferences from file; otherwise, read from DevWorkspace annotations on cluster
 # If preference is read from DevWorkspace, save this preference to the preference file to speed up future calls.
-# This function prints the detected preference, if any.
 function read_preferences() {
   if [ -f "$PREFS_FILE" ]; then
-    cat "$PREFS_FILE"
+    # shellcheck source=/dev/null
+    source "${PREFS_FILE}"
     return
   fi
   info "No preference file found, attempting to read preference from DevWorkspace annotations"
-  ANNOTATION_PREF=$(oc get dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" -o jsonpath="{.metadata.annotations.$DEVWORKSPACE_PREF_ANNOTATION_ESCAPED}" 2>>"$LOG_FILE")
-  if [ -n "$ANNOTATION_PREF" ]; then
-    # Save preference from workspace to file to avoid having to make API calls all the time
-    info "Read preference $ANNOTATION_PREF from DevWorkspace"
-    echo "$ANNOTATION_PREF" > "$PREFS_FILE"
-    echo "$ANNOTATION_PREF"
-  else
-    info "Could not find preference in DevWorkspace annotations"
-  fi
+
+  local dw_json
+  dw_json=$(oc get dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" -o json 2>>"$LOG_FILE")
+  PREF_SHOULD_DOWNLOAD=$(echo "$dw_json" | jq -r --arg ANNOT "$ANNOTATION_PREF_SHOULD_DOWNLOAD" '.metadata.annotations[$ANNOT] // ""')
+  PREF_DOWNLOAD_URL=$(echo "$dw_json" | jq -r --arg ANNOT "$ANNOTATION_PREF_DOWNLOAD_URL" '.metadata.annotations[$ANNOT] // ""')
+
+  # Save results to file to avoid API calls later
+  echo PREF_SHOULD_DOWNLOAD="${PREF_SHOULD_DOWNLOAD}" > "$PREFS_FILE"
+  echo PREF_DOWNLOAD_URL="${PREF_DOWNLOAD_URL}" >> "$PREFS_FILE"
+  info "Read preferences from DevWorkspace:\n$(sed 's|^|    |' "$PREFS_FILE")"
 }
 
 # Reset any saved preferences (both in the preferences file and DevWorkspace annotations) and remove downloaded 'kn'
@@ -136,7 +146,10 @@ function reset_wrapper() {
   info "Resetting kn download preference and removing downloaded binary"
   rm -rf "$PREFS_FILE"
   rm -rf "$BINARIES_PATH/kn"
-  oc annotate dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" "${DEVWORKSPACE_PREF_ANNOTATION}-" >>"$LOG_FILE" 2>&1
+  oc annotate dw "$DEVWORKSPACE_NAME" -n "$DEVWORKSPACE_NAMESPACE" \
+    "${ANNOTATION_PREF_SHOULD_DOWNLOAD}-" \
+    "${ANNOTATION_PREF_DOWNLOAD_URL}-" \
+    >>"$LOG_FILE" 2>&1
 }
 
 # Try to read download URL from ConsoleCLIDownloads custom resources on the cluster. If we cannot get a URL for kn,
