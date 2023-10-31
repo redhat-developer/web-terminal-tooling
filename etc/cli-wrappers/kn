@@ -91,6 +91,7 @@ function call_actual_kn() {
   # Drop the script's directory from path to get the _other_ installed kn
   PATH=${PATH/${SCRIPT_DIR}:/}
   kn "${ORIGINAL_ARGS[@]}"
+  exit 0
 }
 
 # Log message with timestamp and error tag to the internal log file
@@ -183,28 +184,16 @@ function cache_download_url() {
   if [ -z "${KN_DOWNLOAD_URL+set}" ]; then
     # URL is still unset (i.e. this is the first call to this function). Try to read URL from cluster
     if ! KN_DOWNLOAD_URL=$(get_download_url); then
-      # Can't get URL to download kn; save this as preference to stop trying
-      save_preference "$PREF_CANNOT_DOWNLOAD"
+      # We can't get a download URL
       KN_DOWNLOAD_URL=""
     fi
   fi
-}
-
-# Returns 0 if 'kn' is already downloaded, and 1 otherwise
-function need_download() {
-  if [ -x "$BINARIES_PATH/kn" ]; then
-    return 1
-  fi
-  return 0
 }
 
 # Download and extract kn CLI from cluster. Downloaded CLI is saved to $BINARIES_PATH. Logs issues to $LOG_FILE and
 # returns 1 on error.
 function download_kn() {
   cache_download_url
-  if [ "$KN_DOWNLOAD_URL" == "" ]; then
-    return 1
-  fi
   mkdir -p "$KN_DOWNLOAD_PATH" "$BINARIES_PATH" >> "$LOG_FILE" 2>&1 || return 1
   info "Downloading kn from $KN_DOWNLOAD_URL"
   curl "$KN_DOWNLOAD_URL" -o "$KN_DOWNLOAD_PATH/kn.tar.gz" >> "$LOG_FILE" 2>&1 || return 1
@@ -216,23 +205,12 @@ function download_kn() {
   info "Moved kn CLI to $BINARIES_PATH/kn"
 }
 
-# Check if kn is downloaded from the cluster and download it if not
-function ensure_downloaded() {
-  if need_download && ! download_kn; then
-    error "Failed to re-download binary"
-  fi
-}
-
 # Interactively prompt the user whether they want to download the 'kn' binary from the cluster before
 # continuing. If the user responds yes or no, this preference is saved for future use (if the user provides no
 # response, no download is performed and the preference is _not_ saved)
 function prompt_user() {
   cache_download_url
-  if [ "$KN_DOWNLOAD_URL" == "" ]; then
-    # Can't get URL to download kn so just use the default
-    call_actual_kn
-    exit 0
-  fi
+  info "Prompting user to download 'kn' from cluster"
   echo "Detected OpenShift Serverless installation in this cluster."
   echo "The 'kn' CLI is available at: $KN_DOWNLOAD_URL"
   read -rp "Would you like to automatically download 'kn' from this URL instead of using the built-in version? (y/N): " OK
@@ -243,9 +221,48 @@ function prompt_user() {
       echo "Failed to download CLI. See log file $LOG_FILE for details"
       exit 1
     fi
-    save_preference "$PREF_USE_DOWNLOADED"
+    PREF_SHOULD_DOWNLOAD="$VAL_USE_DOWNLOADED"
+    PREF_DOWNLOAD_URL="$KN_DOWNLOAD_URL"
+    save_preferences
   elif [[ "$OK" =~ ^(n|N|no|No) ]] ; then
-    save_preference "$PREF_USE_INSTALLED"
+    PREF_SHOULD_DOWNLOAD="$VAL_USE_INSTALLED"
+    save_preferences
+  fi
+}
+
+function handle_download_restore() {
+  info "Restoring cluster download for 'kn' binary"
+  cache_download_url
+  if [ -z "$KN_DOWNLOAD_URL" ]; then
+    info "Wrapper is configured to download 'kn' but cannot find URL"
+    echo "Warning: Web Terminal was previously configured to download 'kn' from the cluster, but is unable to complete the download."
+    echo "         Using built-in version -- see log file $LOG_FILE for more details."
+    echo ""
+    call_actual_kn
+  fi
+  if [ -n "$PREF_DOWNLOAD_URL" ] && [ "$KN_DOWNLOAD_URL" != "$PREF_DOWNLOAD_URL" ]; then
+    # We don't want to continue automatically downloading if the URL changes, to avoid unexpected results
+    info "Wrapper is configured to download 'kn' but URL has changed (new URL: $KN_DOWNLOAD_URL)"
+    echo "Warning: Web Terminal was previously configured to download 'kn' from the cluster, but the URL for downloading 'kn' has changed."
+    echo "  Previous URL: $PREF_DOWNLOAD_URL"
+    echo "  New URL:      $KN_DOWNLOAD_URL"
+    read -rp "Would you like to update the URL used to download 'kn'? (y/N): " OK
+    info "Received response $OK for update URL prompt"
+    if [[ "$OK" =~ ^(y|Y|yes|Yes) ]] ; then
+      PREF_DOWNLOAD_URL="$KN_DOWNLOAD_URL"
+      save_preferences
+    else
+      # If user doesn't want to update the URL, then default to "use built-in version"
+      echo "Saving preference and using built-in version of 'kn'"
+      PREF_SHOULD_DOWNLOAD="$VAL_USE_INSTALLED"
+      save_preferences
+      call_actual_kn
+    fi
+  fi
+  if ! download_kn; then
+    echo "Failed to download 'kn' CLI. See log file $LOG_FILE for details."
+    PREF_SHOULD_DOWNLOAD="$VAL_CANNOT_DOWNLOAD"
+    save_preferences
   fi
 }
 
@@ -260,10 +277,26 @@ function check_wrapper_arguments() {
       exit 0
     ;;
     "$ARG_RESTORE_PREFERENCES")
-      PREF=$(read_preferences)
-      if [ "$PREF" == "$PREF_USE_DOWNLOADED" ]; then
-        info "Restoring preference $PREF in initial setup"
-        ensure_downloaded
+      if [ "$PREF_SHOULD_DOWNLOAD" == "$VAL_USE_DOWNLOADED" ]; then
+        info "Restoring preference $PREF_SHOULD_DOWNLOAD in initial setup"
+        cache_download_url
+        if [ -z "$KN_DOWNLOAD_URL" ]; then
+          error "Could not detect URL for downloading kn from cluster"
+          exit 0
+        fi
+        if [ -z "$PREF_DOWNLOAD_URL" ]; then
+          error "Could not find URL to redownload 'kn'"
+          exit 0
+        fi
+        if [ "$PREF_DOWNLOAD_URL" != "$KN_DOWNLOAD_URL" ]; then
+          error "Detected URL $KN_DOWNLOAD_URL does not match previous URL $PREF_DOWNLOAD_URL"
+          exit 0
+        fi
+        if ! download_kn; then
+          error "Could not redownload 'kn' CLI"
+          exit 0
+        fi
+        info "Redownloaded kn CLI from $KN_DOWNLOAD_URL"
       fi
       exit 0
     ;;
@@ -278,22 +311,35 @@ function check_wrapper_arguments() {
   esac
 }
 
+read_preferences
+
+# Check if we're running non-interactively
 check_wrapper_arguments "$@"
 
-PREF=$(read_preferences)
-case "$PREF" in
-  "$PREF_USE_DOWNLOADED")
-    ensure_downloaded
+# Shortcut if the user answered "no" to the prompt earlier; we don't to make unnecessary
+# API calls on every invocation of 'kn' unless necessary
+if [ "$PREF_SHOULD_DOWNLOAD" == "$VAL_CANNOT_DOWNLOAD" ] || [ "$PREF_SHOULD_DOWNLOAD" == "$VAL_USE_INSTALLED" ]; then
+  call_actual_kn
+fi
+
+if [ "$PREF_SHOULD_DOWNLOAD" == "$VAL_USE_DOWNLOADED" ]; then
+  # Shortcut if the user answered "yes" to the prompt and kn is already downloaded. Assume
+  # we don't need to do anything.
+  if [ -x "$BINARIES_PATH/kn" ]; then
     call_actual_kn
-    ;;
-  "$PREF_USE_INSTALLED")
-    call_actual_kn
-    ;;
-  "$PREF_CANNOT_DOWNLOAD")
-    call_actual_kn
-    ;;
-  *)
-    prompt_user
-    call_actual_kn
-    ;;
-esac
+  fi
+  # If 'kn' doesn't exist, attempt to download it
+  handle_download_restore
+  call_actual_kn
+fi
+
+# No preference set yet: we should prompt the user, if applicable
+cache_download_url
+if [ -n "$KN_DOWNLOAD_URL" ]; then
+  prompt_user
+else
+  PREF_SHOULD_DOWNLOAD="$VAL_CANNOT_DOWNLOAD"
+  save_preferences
+fi
+
+call_actual_kn
