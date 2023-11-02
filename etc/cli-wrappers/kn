@@ -316,8 +316,12 @@ function check_wrapper_arguments() {
 
 read_preferences
 
-# Check if we're running non-interactively
+# Check wrapper-specific arguments and handle them without running kn
 check_wrapper_arguments "$@"
+# Check if we're running interactively (if we have a stdin)
+if [ ! -t 0 ]; then
+  call_actual_kn
+fi
 
 # Shortcut if the user answered "no" to the prompt earlier; we don't to make unnecessary
 # API calls on every invocation of 'kn' unless necessary
