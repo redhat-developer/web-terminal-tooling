@@ -63,6 +63,9 @@ readonly ARG_RESET_WRAPPER="--wto-reset-preferences"
 readonly ARG_RESTORE_PREFERENCES="--wto-restore-preferences"
 readonly ARG_PRINT_LOG="--wto-show-logs"
 
+# Path to cluster's certificate, to avoid warnings about untrusted certificates on some clusters
+readonly CACERT="${CACERT:-/var/run/secrets/kubernetes.io/serviceaccount/ca.crt}"
+
 # Env vars for preferences. These should be loaded from the $PREFS_FILE if it exists, or read from
 # the DevWorkspace annotations if not.
 declare PREF_SHOULD_DOWNLOAD
@@ -196,7 +199,7 @@ function download_kn() {
   cache_download_url
   mkdir -p "$KN_DOWNLOAD_PATH" "$BINARIES_PATH" >> "$LOG_FILE" 2>&1 || return 1
   info "Downloading kn from $KN_DOWNLOAD_URL"
-  curl "$KN_DOWNLOAD_URL" -o "$KN_DOWNLOAD_PATH/kn.tar.gz" >> "$LOG_FILE" 2>&1 || return 1
+  curl --cacert "$CACERT" "$KN_DOWNLOAD_URL" -o "$KN_DOWNLOAD_PATH/kn.tar.gz" >> "$LOG_FILE" 2>&1 || return 1
   info "Downloaded kn archive to $KN_DOWNLOAD_PATH/kn.tar.gz"
   info "Extracting kn CLI to $KN_DOWNLOAD_PATH"
   tar -xf "$KN_DOWNLOAD_PATH/kn.tar.gz" -C "$KN_DOWNLOAD_PATH" >> "$LOG_FILE" 2>&1 || return 1
