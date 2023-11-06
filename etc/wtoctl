@@ -17,6 +17,8 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 source "${SCRIPT_DIR}/wtoctl_help.sh"
 source "${SCRIPT_DIR}/wtoctl_jq.sh"
 
+LOGS_FILE="/tmp/wtoctl.log"
+
 DEVWORKSPACE_ID_LABEL="controller.devfile.io/devworkspace_id"
 if [ -f /var/run/secrets/kubernetes.io/serviceaccount/namespace ]; then
   NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
@@ -72,7 +74,11 @@ function set_tooling_image() {
   local IMAGE="$1"
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
   UPDATED_JSON=$(echo "$DW_JSON" | jq --arg IMAGE "$IMAGE" "$JQ_SET_IMAGE_SCRIPT")
-  echo "$UPDATED_JSON" | oc apply -f -
+  if ! echo "$UPDATED_JSON" | oc apply -f - 2>"$LOGS_FILE"; then
+    echo "Failed to update Web Terminal image due to conflict. Please try again."
+    echo "If error persists, see logs in $LOGS_FILE"
+    exit 1
+  fi
   echo "Updated Web Terminal image to $IMAGE. Terminal may restart."
 }
 
@@ -85,7 +91,11 @@ function reset_tooling_image() {
   expect_no_args "wtoctl reset image" "$@"
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
   UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_IMAGE_SCRIPT")
-  echo "$UPDATED_JSON" | oc apply -f -
+  if ! echo "$UPDATED_JSON" | oc apply -f - 2>"$LOGS_FILE"; then
+    echo "Failed to update Web Terminal image due to conflict. Please try again."
+    echo "If error persists, see logs in $LOGS_FILE"
+    exit 1
+  fi
   echo "Reset Web Terminal tooling image. Terminal may restart"
 }
 
@@ -124,7 +134,12 @@ function set_timeout() {
        --arg NAME "WEB_TERMINAL_IDLE_TIMEOUT" \
        --arg VALUE "$TIMEOUT" \
        "$JQ_SET_ENV_SCRIPT")
-  echo "$UPDATED_JSON" | oc apply -f -
+  if ! echo "$UPDATED_JSON" | oc apply -f - 2>"$LOGS_FILE"; then
+    echo "Failed to update Web Terminal image due to conflict. Please try again."
+    echo "If error persists, see logs in $LOGS_FILE"
+    exit 1
+  fi
+
   echo "Updated Web Terminal idle timeout to $TIMEOUT. Terminal may restart."
 }
 
@@ -140,7 +155,12 @@ function reset_timeout() {
     jq --arg COMPONENT "web-terminal-exec" \
        --arg NAME "WEB_TERMINAL_IDLE_TIMEOUT" \
        "$JQ_RESET_ENV_SCRIPT")
-  echo "$UPDATED_JSON" | oc apply -f -
+  if ! echo "$UPDATED_JSON" | oc apply -f - 2>"$LOGS_FILE"; then
+    echo "Failed to update Web Terminal image due to conflict. Please try again."
+    echo "If error persists, see logs in $LOGS_FILE"
+    exit 1
+  fi
+
   echo "Reset Web Terminal idle timeout. Terminal may restart."
 }
 
@@ -168,7 +188,12 @@ function set_shell() {
        --arg NAME "SHELL" \
        --arg VALUE "$SHELL" \
        "$JQ_SET_ENV_SCRIPT")
-  echo "$UPDATED_JSON" | oc apply -f -
+  if ! echo "$UPDATED_JSON" | oc apply -f - 2>"$LOGS_FILE"; then
+    echo "Failed to update Web Terminal shell due to conflict. Please try again."
+    echo "If error persists, see logs in $LOGS_FILE"
+    exit 1
+  fi
+
   echo "Updated Web Terminal shell to $SHELL. Terminal may restart."
 }
 
@@ -184,7 +209,12 @@ function reset_shell() {
     jq --arg COMPONENT "web-terminal-tooling" \
        --arg NAME "SHELL" \
        "$JQ_RESET_ENV_SCRIPT")
-  echo "$UPDATED_JSON" | oc apply -f -
+  if ! echo "$UPDATED_JSON" | oc apply -f - 2>"$LOGS_FILE"; then
+    echo "Failed to update Web Terminal shell due to conflict. Please try again."
+    echo "If error persists, see logs in $LOGS_FILE"
+    exit 1
+  fi
+
   echo "Reset Web Terminal shell. Terminal may restart"
 }
 
@@ -240,7 +270,11 @@ function set_storage() {
       jq --arg VOLUME_SIZE "$STORAGE_SIZE" \
          --arg MOUNT_PATH  "$MOUNT_PATH" \
          "$JQ_SET_STORAGE_SCRIPT")
-    echo "$UPDATED_JSON" | oc apply -f -
+    if ! echo "$UPDATED_JSON" | oc apply -f - 2>"$LOGS_FILE"; then
+      echo "Failed to update Web Terminal storage due to conflict. Please try again."
+      echo "If error persists, see logs in $LOGS_FILE"
+      exit 1
+    fi
     echo "Updated Web Terminal storage. Terminal may restart"
   else
     echo "Not adding storage"
@@ -260,7 +294,12 @@ function reset_storage() {
 
   DW_JSON=$(oc get devworkspaces "$DEVWORKSPACE_NAME" -n "$NAMESPACE" -o json)
   UPDATED_JSON=$(echo "$DW_JSON" | jq "$JQ_RESET_STORAGE_SCRIPT")
-  echo "$UPDATED_JSON" | oc apply -f -
+  if ! echo "$UPDATED_JSON" | oc apply -f - 2>"$LOGS_FILE"; then
+    echo "Failed to update Web Terminal storage due to conflict. Please try again."
+    echo "If error persists, see logs in $LOGS_FILE"
+    exit 1
+  fi
+
   if [[ "$DELETE_PVC" =~ ^(y|Y|yes|Yes) ]] ; then
     oc delete pvc -n "$NAMESPACE" "$PVC_NAME" --wait=false
     echo "Deleted persistent volume claim $PVC_NAME"
