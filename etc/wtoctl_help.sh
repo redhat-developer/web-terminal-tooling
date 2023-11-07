@@ -36,7 +36,7 @@ Configurable fields:
   * image   - the image used for the Web Terminal
   * timeout - the time a Web Terminal may be idle before it is terminated
   * shell   - the shell used for the Web Terminal (e.g. bash, zsh)
-  * storage - configure persistent storage to the Web Terminal
+  * storage - configure persistent storage for the Web Terminal
 
 Available commands:
   * get   - get the current value for a field
