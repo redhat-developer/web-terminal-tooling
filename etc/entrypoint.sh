@@ -21,6 +21,7 @@ find "$INITIAL_CONFIG" -mindepth 1 -exec cp -nrp {} "${HOME}/" \;
 # Restore configuration of 'kn' wrapper if a user previously set a preference
 "$WRAPPER_BINARIES"/kn --wto-restore-preferences || true
 
-/tmp/get-tooling-versions.sh > /tmp/installed_tools.txt
+# Have to close stdin because odo will prompt for telemetry even in an entrypoint
+/tmp/get-tooling-versions.sh 0<&- > /tmp/installed_tools.txt
 
 exec "$@"
