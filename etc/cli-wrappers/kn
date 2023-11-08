@@ -111,6 +111,12 @@ function info() {
   echo -e "[$timestamp INFO ] $1" >> "$LOG_FILE"
 }
 
+# Print a message to the user (error or informational). Message is printed to
+# stderr
+function message() {
+  echo "$@" >&2
+}
+
 # Save user preferences to file and DevWorkspace annotations
 function save_preferences() {
   echo PREF_SHOULD_DOWNLOAD="${PREF_SHOULD_DOWNLOAD}" > "$PREFS_FILE"
@@ -214,14 +220,14 @@ function download_kn() {
 function prompt_user() {
   cache_download_url
   info "Prompting user to download 'kn' from cluster"
-  echo "Detected OpenShift Serverless installation in this cluster."
-  echo "The 'kn' CLI is available at: $KN_DOWNLOAD_URL"
+  message "Detected OpenShift Serverless installation in this cluster."
+  message "The 'kn' CLI is available at: $KN_DOWNLOAD_URL"
   read -rp "Would you like to automatically download 'kn' from this URL instead of using the built-in version? (y/N): " OK
-  echo ""
+  message ""
   info "Received response '$OK' for prompt"
   if [[ "$OK" =~ ^(y|Y|yes|Yes) ]] ; then
     if ! download_kn; then
-      echo "Failed to download CLI. See log file $LOG_FILE for details"
+      message "Failed to download CLI. See log file $LOG_FILE for details"
       exit 1
     fi
     PREF_SHOULD_DOWNLOAD="$VAL_USE_DOWNLOADED"
@@ -238,17 +244,17 @@ function handle_download_restore() {
   cache_download_url
   if [ -z "$KN_DOWNLOAD_URL" ]; then
     info "Wrapper is configured to download 'kn' but cannot find URL"
-    echo "Warning: Web Terminal was previously configured to download 'kn' from the cluster, but is unable to complete the download."
-    echo "         Using built-in version -- see log file $LOG_FILE for more details."
-    echo ""
+    message "Warning: Web Terminal was previously configured to download 'kn' from the cluster, but is unable to complete the download."
+    message "         Using built-in version -- see log file $LOG_FILE for more details."
+    message ""
     call_actual_kn
   fi
   if [ -n "$PREF_DOWNLOAD_URL" ] && [ "$KN_DOWNLOAD_URL" != "$PREF_DOWNLOAD_URL" ]; then
     # We don't want to continue automatically downloading if the URL changes, to avoid unexpected results
     info "Wrapper is configured to download 'kn' but URL has changed (new URL: $KN_DOWNLOAD_URL)"
-    echo "Warning: Web Terminal was previously configured to download 'kn' from the cluster, but the URL for downloading 'kn' has changed."
-    echo "  Previous URL: $PREF_DOWNLOAD_URL"
-    echo "  New URL:      $KN_DOWNLOAD_URL"
+    message "Warning: Web Terminal was previously configured to download 'kn' from the cluster, but the URL for downloading 'kn' has changed."
+    message "  Previous URL: $PREF_DOWNLOAD_URL"
+    message "  New URL:      $KN_DOWNLOAD_URL"
     read -rp "Would you like to update the URL used to download 'kn'? (y/N): " OK
     info "Received response $OK for update URL prompt"
     if [[ "$OK" =~ ^(y|Y|yes|Yes) ]] ; then
@@ -256,14 +262,14 @@ function handle_download_restore() {
       save_preferences
     else
       # If user doesn't want to update the URL, then default to "use built-in version"
-      echo "Saving preference and using built-in version of 'kn'"
+      message "Saving preference and using built-in version of 'kn'"
       PREF_SHOULD_DOWNLOAD="$VAL_USE_INSTALLED"
       save_preferences
       call_actual_kn
     fi
   fi
   if ! download_kn; then
-    echo "Failed to download 'kn' CLI. See log file $LOG_FILE for details."
+    message "Failed to download 'kn' CLI. See log file $LOG_FILE for details."
     PREF_SHOULD_DOWNLOAD="$VAL_CANNOT_DOWNLOAD"
     save_preferences
   fi
@@ -308,7 +314,7 @@ function check_wrapper_arguments() {
       exit 0
     ;;
     --wto-*)
-      echo "Invalid wrapper argument $1"
+      message "Invalid wrapper argument $1"
       internal_args_help
       exit 1
   esac
