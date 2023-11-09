@@ -324,8 +324,9 @@ read_preferences
 
 # Check wrapper-specific arguments and handle them without running kn
 check_wrapper_arguments "$@"
-# Check if we're running interactively (if we have a stdin)
-if [ ! -t 0 ]; then
+# Check if we're running interactively (if we have a stdin) and if output is to stdout (or a pipe)
+# If we're in either case (non-interactive or piped) don't prompt and just call whatever kn we've got.
+if [ ! -t 0 ] || [ ! -t 1 ]; then
   call_actual_kn
 fi
 
