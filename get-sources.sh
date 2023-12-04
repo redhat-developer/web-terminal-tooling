@@ -64,8 +64,8 @@ rm -rf "${TMPDIR:?}"/*
 
 echo "Downloading tekton ${TKN_VER}"
 curl -sSfL --insecure --remote-name-all \
-  "${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}/sha256sum.txt" \
-  "${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}/tkn-linux-amd64.tar.gz"
+  "${OPENSHIFT_CLIENTS_URL}/pipelines/${TKN_VER}/sha256sum.txt" \
+  "${OPENSHIFT_CLIENTS_URL}/pipelines/${TKN_VER}/tkn-linux-amd64.tar.gz"
 echo "$(grep tkn-linux-amd64.tar.gz sha256sum.txt | cut -d' ' -f1) tkn-linux-amd64.tar.gz" | sha256sum --check --status
 tar xzf tkn-linux-amd64.tar.gz -C "$CONTAINER_USR_BIN_DIR" tkn
 rm -rf "${TMPDIR:?}"/*
@@ -90,7 +90,9 @@ echo "Downloading submariner ${SUBMARINER_VER}"
 mkdir -p "$CONTAINER_OPT_DIR/submariner"
 wget -q -O- "https://github.com/submariner-io/releases/releases/download/v${SUBMARINER_VER}/subctl-v${SUBMARINER_VER}-linux-amd64.tar.xz" | \
   tar xJ --strip-components=1 -C "$CONTAINER_OPT_DIR/submariner"
-mv "$CONTAINER_OPT_DIR"/submariner/subctl* "$CONTAINER_OPT_DIR"/submariner/subctl
+if [ ! -f "$CONTAINER_OPT_DIR"/submariner/subctl ]; then
+  mv "$CONTAINER_OPT_DIR"/submariner/subctl* "$CONTAINER_OPT_DIR"/submariner/subctl
+fi
 rm -rf "${TMPDIR:?}"/*
 chmod -R +x "${CONTAINER_USR_BIN_DIR}"
 
