@@ -24,7 +24,7 @@ KUBECTL_VER=$(kubectl version --client -o json | jq -r '.clientVersion.gitVersio
 append_ver "kubectl  |${KUBECTL_VER#v}   |Kubernetes CLI"
 
 if command -v kustomize &>/dev/null; then
-  KUSTOMIZE_VER=$(kustomize version --short | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
+  KUSTOMIZE_VER=$(kustomize version | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
   append_ver "kustomize|${KUSTOMIZE_VER#v} |Kustomize CLI"
 else
   KUSTOMIZE_VER=$(kubectl version --client -o json | jq -r '.kustomizeVersion')
