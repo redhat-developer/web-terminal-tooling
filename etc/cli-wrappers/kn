@@ -137,6 +137,11 @@ function read_preferences() {
     source "${PREFS_FILE}"
     return
   fi
+  # If we're not currently logged in to the OpenShift cluster, we can go no further. Instead, call kn directly to avoid
+  # really confusing error cases.
+  if ! oc whoami -c >/dev/null 2>&1; then
+    return
+  fi
   info "No preference file found, attempting to read preference from DevWorkspace annotations"
 
   local dw_json
@@ -344,6 +349,12 @@ if [ "$PREF_SHOULD_DOWNLOAD" == "$VAL_USE_DOWNLOADED" ]; then
   fi
   # If 'kn' doesn't exist, attempt to download it
   handle_download_restore
+  call_actual_kn
+fi
+
+# If we're not currently logged in to the OpenShift cluster, call kn immediately to avoid
+# really confusing error cases.
+if ! oc whoami -c >/dev/null 2>&1; then
   call_actual_kn
 fi
 
