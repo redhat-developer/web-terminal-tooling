@@ -9,7 +9,7 @@ Includes tools that enable a Kubernetes and OpenShift developer to interact with
 - [kustomize](https://github.com/kubernetes-sigs/kustomize) [v5.2.1](https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v5.2.1)
 - [helm](https://helm.sh/) [v3.12.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.12.1)
 - [odo](https://github.com/openshift/odo) [v3.15.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v3.15.0)
-- [tekton](https://github.com/tektoncd/cli) [v1.13.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipeline/1.13.0)
+- [tekton](https://github.com/tektoncd/cli) [v1.13.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipelines/1.13.0)
 - [knative](https://github.com/knative/client) [v1.9.2](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/1.9.2)
 - [rhoas](https://github.com/redhat-developer/app-services-cli) [v0.53.0](https://github.com/redhat-developer/app-services-cli/tree/v0.53.0)
 - [submariner](https://github.com/submariner-io/submariner) [v0.16.2](https://github.com/submariner-io/subctl/tree/v0.16.2)

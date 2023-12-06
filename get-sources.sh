@@ -122,7 +122,7 @@ rm -f rh-manifest.txt || true
   echo "kustomize ${KUSTOMIZE_VER} https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v${KUSTOMIZE_VER}"
   echo "helm ${HELM_VER} ${OPENSHIFT_CLIENTS_URL}/helm/${HELM_VER}"
   echo "odo ${ODO_VER} ${OPENSHIFT_CLIENTS_URL}/odo/${ODO_VER}"
-  echo "tekton ${TKN_VER} ${OPENSHIFT_CLIENTS_URL}/pipeline/${TKN_VER}"
+  echo "tekton ${TKN_VER} ${OPENSHIFT_CLIENTS_URL}/pipelines/${TKN_VER}"
   echo "knative ${KN_VER} ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}"
   echo "rhoas ${RHOAS_VER} https://github.com/redhat-developer/app-services-cli/tree/v${RHOAS_VER}"
   echo "submariner ${SUBMARINER_VER} https://github.com/submariner-io/subctl/tree/v${SUBMARINER_VER}"
