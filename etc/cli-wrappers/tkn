@@ -139,7 +139,7 @@ function read_preferences() {
   fi
   # If we're not currently logged in to the OpenShift cluster, we can go no further. Instead, call tkn directly to avoid
   # really confusing error cases.
-  if ! oc whoami -c >/dev/null 2>&1; then
+  if ! oc whoami -t >/dev/null 2>&1; then
     return
   fi
   info "No preference file found, attempting to read preference from DevWorkspace annotations"
@@ -358,7 +358,7 @@ fi
 
 # If we're not currently logged in to the OpenShift cluster, call tkn immediately to avoid
 # really confusing error cases.
-if ! oc whoami -c >/dev/null 2>&1; then
+if ! oc whoami -t >/dev/null 2>&1; then
   call_actual_tkn
 fi
 
