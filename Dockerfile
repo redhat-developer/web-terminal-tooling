@@ -1,5 +1,5 @@
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.9-1137
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi9-minimal
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4-1134
 USER 0
 
 # The $INITIAL_CONFIG dir stores dotfiles (e.g. .bashrc) for the web terminal, which
@@ -13,8 +13,8 @@ ENV HOME=/home/user
 WORKDIR /home/user
 
 RUN mkdir -p /home/user $INITIAL_CONFIG $WRAPPER_BINARIES $DOWNLOADED_BINARIES && \
-    microdnf update -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms && \
-    microdnf install -y --disablerepo=* --enablerepo=ubi-8-appstream-rpms --enablerepo=ubi-8-baseos-rpms \
+    microdnf update -y --disablerepo=* --enablerepo=ubi-9-appstream-rpms --enablerepo=ubi-9-baseos-rpms && \
+    microdnf install -y --disablerepo=* --enablerepo=ubi-9-appstream-rpms --enablerepo=ubi-9-baseos-rpms \
     # bash completion tools
     bash-completion ncurses pkgconf-pkg-config findutils \
     # zsh
@@ -22,7 +22,7 @@ RUN mkdir -p /home/user $INITIAL_CONFIG $WRAPPER_BINARIES $DOWNLOADED_BINARIES &
     # terminal-based editors
     vi vim nano \
     # developer tools
-    curl tar git procps jq && \
+    tar git procps jq && \
     microdnf -y clean all
 
 ADD container-root-x86_64.tgz /
