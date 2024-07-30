@@ -8,7 +8,6 @@ Includes tools that enable a Kubernetes and OpenShift developer to interact with
 - [kubectl](https://github.com/kubernetes/kubectl) [v1.29.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.16.0)
 - [kustomize](https://github.com/kubernetes-sigs/kustomize) [v5.4.2](https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v5.4.2)
 - [helm](https://helm.sh/) [v3.14.4](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.14.4)
-- [odo](https://github.com/openshift/odo) [v3.16.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/odo/v3.16.1)
 - [tekton](https://github.com/tektoncd/cli) [v1.15.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipelines/1.15.0)
 - [knative](https://github.com/knative/client) [v1.12.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/1.12.0)
 - [rhoas](https://github.com/redhat-developer/app-services-cli) [v0.53.0](https://github.com/redhat-developer/app-services-cli/tree/v0.53.0)
