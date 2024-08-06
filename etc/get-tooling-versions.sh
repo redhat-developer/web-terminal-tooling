@@ -51,11 +51,6 @@ if command -v subctl &>/dev/null; then
   append_ver "subctl   |${SUBMARINER_VER#v}|Submariner CLI"
 fi
 
-if command -v odo &>/dev/null; then
-  ODO_VER=$(odo version --client | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
-  append_ver "odo      |${ODO_VER#v}       |Red Hat OpenShift Developer CLI"
-fi
-
 if command -v virtctl &>/dev/null; then
   KUBEVIRT_VER=$(virtctl version --client | grep -Eo 'GitVersion:"[^"]+"' | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
   append_ver "virtctl  |${KUBEVIRT_VER#v}  |KubeVirt CLI"
