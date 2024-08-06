@@ -26,9 +26,6 @@ compinit
 if command -v kubectl &>/dev/null; then
   source <(kubectl completion zsh)
 fi
-if command -v oc &>/dev/null; then
-  source <(oc completion zsh)
-fi
 if command -v kn &>/dev/null; then
   source <(kn completion zsh)
 fi
