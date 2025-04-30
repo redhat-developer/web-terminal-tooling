@@ -1,5 +1,5 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi9-minimal
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4-1227.1726694542
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5-1745855087
 USER 0
 
 # The $INITIAL_CONFIG dir stores dotfiles (e.g. .bashrc) for the web terminal, which
