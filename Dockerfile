@@ -25,7 +25,11 @@ RUN mkdir -p /home/user $INITIAL_CONFIG $WRAPPER_BINARIES $DOWNLOADED_BINARIES &
     tar git procps jq && \
     microdnf -y clean all
 
-ADD container-root-x86_64.tgz /
+COPY container-root-x86_64.tgz /tmp/container-root-x86_64.tgz
+
+RUN tar --no-same-owner -xzf /tmp/container-root-x86_64.tgz -C / && \
+    rm /tmp/container-root-x86_64.tgz
+
 # Propagate tools to path and install bash autocompletion
 RUN \
     COMPDIR=$(pkg-config --variable=completionsdir bash-completion) && \
