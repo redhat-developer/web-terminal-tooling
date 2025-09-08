@@ -1,9 +1,9 @@
-oc 4.18.11 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.18.11
-kubectl v1.31.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.18.11
-kustomize 5.6.0 https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v5.6.0
-helm 3.15.4 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.15.4
-tekton 1.18.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipelines/1.18.0
-knative 1.15.0-4 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/1.15.0-4
+oc 4.19.9 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.19.9
+kubectl  https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.19.9
+kustomize 5.7.1 https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v5.7.1
+helm 3.17.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.17.1
+tekton 1.19.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipelines/1.19.0
+knative 1.15.0-6 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/1.15.0-6
 rhoas 0.53.0 https://github.com/redhat-developer/app-services-cli/tree/v0.53.0
-submariner 0.20.0 https://github.com/submariner-io/subctl/tree/v0.20.0
-kubevirt 1.5.0 https://github.com/kubevirt/kubevirt/tree/v1.5.0
+submariner 0.21.0 https://github.com/submariner-io/subctl/tree/v0.21.0
+kubevirt 1.6.0 https://github.com/kubevirt/kubevirt/tree/v1.6.0
