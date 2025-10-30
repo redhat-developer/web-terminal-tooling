@@ -47,7 +47,7 @@ if command -v tkn &>/dev/null; then
 fi
 
 if command -v subctl &>/dev/null; then
-  SUBMARINER_VER=$(subctl version | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
+  SUBMARINER_VER=$(subctl version | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+|release-[0-9]+\.[0-9]+')
   append_ver "subctl   |${SUBMARINER_VER#v}|Submariner CLI"
 fi
 
