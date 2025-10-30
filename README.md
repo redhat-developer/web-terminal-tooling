@@ -4,15 +4,15 @@ Default OpenShift Console Web Terminal tooling container.
 
 Includes tools that enable a Kubernetes and OpenShift developer to interact with their cluster:
 - [jq](https://github.com/stedolan/jq)
-- [oc](https://github.com/openshift/origin) [v4.19.9](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.19.9/)
-- [kubectl](https://github.com/kubernetes/kubectl) [v1.31.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.19.9/)
+- [oc](https://github.com/openshift/origin) [v4.20.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.20.1/)
+- [kubectl](https://github.com/kubernetes/kubectl) [v1.31.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.20.1/)
 - [kustomize](https://github.com/kubernetes-sigs/kustomize) [v5.7.1](https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v5.7.1)
 - [helm](https://helm.sh/) [v3.17.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.17.1)
-- [tekton](https://github.com/tektoncd/cli) [v1.19.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipelines/1.19.0/)
+- [tekton](https://github.com/tektoncd/cli) [v1.20.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipelines/1.20.0/)
 - [knative](https://github.com/knative/client) [v1.15.0-6](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/1.15.0-6/)
 - [rhoas](https://github.com/redhat-developer/app-services-cli) [v0.53.0](https://github.com/redhat-developer/app-services-cli/tree/v0.53.0)
 - [submariner](https://github.com/submariner-io/submariner) [v0.21.0](https://github.com/submariner-io/subctl/tree/v0.21.0)
-- [kubevirt](https://github.com/kubevirt/kubevirt) [v1.6.0](https://github.com/kubevirt/kubevirt/tree/v1.6.0)
+- [kubevirt](https://github.com/kubevirt/kubevirt) [v1.6.2](https://github.com/kubevirt/kubevirt/tree/v1.6.2)
 
 ## Contributing
 
