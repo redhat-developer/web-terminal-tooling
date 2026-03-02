@@ -68,4 +68,4 @@ if [[ ! -f "container-root-x86_64.tgz" ]] || [[ "$updateBinariesTgz" == "true" ]
   ./get-sources.sh
 fi
 
-${TOOL} build -t "${WEB_TERMINAL_TOOLING_IMG}" --file ./Dockerfile .
+${TOOL} build --platform linux/amd64 -t "${WEB_TERMINAL_TOOLING_IMG}" --file ./Dockerfile .
