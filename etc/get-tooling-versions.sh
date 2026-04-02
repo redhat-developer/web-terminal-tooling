@@ -61,8 +61,21 @@ if command -v rhoas &>/dev/null; then
   append_ver "rhoas    |${RHOAS_VER#v}     |Red Hat OpenShift Application Services CLI"
 fi
 
+GIT_VER=$(git --version | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+append_ver "git      |${GIT_VER#v}       |Git"
+
 JQ_VER=$(jq --version)
 JQ_VER=${JQ_VER#jq-}
 append_ver "jq       |${JQ_VER#v}        |jq"
+
+if command -v gcloud &>/dev/null; then
+  GCLOUD_VER=$(gcloud version 2>/dev/null | head -1 | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
+  append_ver "gcloud   |${GCLOUD_VER#v}   |Google Cloud SDK"
+fi
+
+if command -v claude &>/dev/null; then
+  CLAUDE_VER=$(claude --version | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
+  append_ver "claude   |${CLAUDE_VER#v}     |Claude Code agentic coding tool"
+fi
 
 echo -e "$INSTALLED_TOOLS" | column -t -s '|'

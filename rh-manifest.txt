@@ -1,5 +1,5 @@
 oc 4.21.4 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.21.4/
-kubectl  https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.21.4/
+kubectl v1.34.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.21.4/
 kustomize 5.8.1 https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v5.8.1
 helm 3.17.1 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.17.1
 tekton 1.20.0 https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipelines/1.20.0
