@@ -9,6 +9,8 @@ USER 0
 ENV INITIAL_CONFIG=/tmp/initial_config
 ENV WRAPPER_BINARIES=/wto/bin
 ENV DOWNLOADED_BINARIES=/wto/bin/downloaded
+ENV CLAUDE_BINARIES=/opt/claude/bin
+ENV GCLOUD_BINARIES=/opt/google-cloud-sdk/bin
 ENV HOME=/home/user
 WORKDIR /home/user
 
@@ -23,7 +25,27 @@ RUN mkdir -p /home/user $INITIAL_CONFIG $WRAPPER_BINARIES $DOWNLOADED_BINARIES &
     vi vim nano \
     # developer tools
     tar git procps jq && \
-    microdnf -y clean all
+    microdnf -y clean all && \
+    # claude code (might not be available for all platforms)
+    curl -fsSL https://claude.ai/install.sh | bash && \
+    mkdir -p ${CLAUDE_BINARIES} && \
+    mv /home/user/.local/bin/claude ${CLAUDE_BINARIES} && \
+    # Install Google Cloud SDK based on platform architecture
+    ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+      GCLOUD_ARCH="x86_64"; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+      GCLOUD_ARCH="arm"; \
+    else \
+      echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi && \
+    curl -sSL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-${GCLOUD_ARCH}.tar.gz" -o /tmp/google-cloud-cli-linux-x86_64.tar.gz && \
+    cd /tmp && tar -xzf google-cloud-cli-linux-x86_64.tar.gz && \
+    ./google-cloud-sdk/install.sh --quiet --usage-reporting false --command-completion false --path-update false && \
+    mv google-cloud-sdk /opt && \
+    rm google-cloud-cli-linux-${GCLOUD_ARCH}.tar.gz
+
+ENV PATH="${WRAPPER_BINARIES}:${DOWNLOADED_BINARIES}:${CLAUDE_BINARIES}:${GCLOUD_BINARIES}:${PATH}"
 
 COPY container-root-x86_64.tgz /tmp/container-root-x86_64.tgz
 
@@ -49,7 +71,8 @@ RUN \
     tkn completion bash > $COMPDIR/tkn && \
     virtctl completion bash > $COMPDIR/virtctl && \
     rhoas completion bash > $COMPDIR/rhoas && \
-    subctl completion bash > $COMPDIR/subctl
+    subctl completion bash > $COMPDIR/subctl && \
+    cp /opt/google-cloud-sdk/completion.bash.inc $COMPDIR/gcloud
 
 COPY etc/initial_config /tmp/initial_config
 COPY etc/get-tooling-versions.sh /tmp/get-tooling-versions.sh
@@ -70,7 +93,6 @@ RUN for f in "${HOME}" "${INITIAL_CONFIG}" "${WRAPPER_BINARIES}" "${DOWNLOADED_B
 USER 1001
 
 ENV SHELL=/bin/bash
-ENV PATH="${WRAPPER_BINARIES}:${DOWNLOADED_BINARIES}:${PATH}"
 
 ENTRYPOINT [ "/entrypoint.sh" ]
 
