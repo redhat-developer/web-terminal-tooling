@@ -39,8 +39,8 @@ RUN mkdir -p /home/user $INITIAL_CONFIG $WRAPPER_BINARIES $DOWNLOADED_BINARIES &
     else \
       echo "Unsupported architecture: $ARCH" && exit 1; \
     fi && \
-    curl -sSL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-${GCLOUD_ARCH}.tar.gz" -o /tmp/google-cloud-cli-linux-x86_64.tar.gz && \
-    cd /tmp && tar -xzf google-cloud-cli-linux-x86_64.tar.gz && \
+    curl -sSL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-${GCLOUD_ARCH}.tar.gz" -o /tmp/google-cloud-cli-linux-${GCLOUD_ARCH}.tar.gz && \
+    cd /tmp && tar -xzf google-cloud-cli-linux-${GCLOUD_ARCH}.tar.gz && \
     ./google-cloud-sdk/install.sh --quiet --usage-reporting false --command-completion false --path-update false && \
     mv google-cloud-sdk /opt && \
     rm google-cloud-cli-linux-${GCLOUD_ARCH}.tar.gz
