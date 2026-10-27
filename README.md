@@ -7,7 +7,9 @@ Includes tools that enable a Kubernetes and OpenShift developer to interact with
 - [oc](https://github.com/openshift/origin) [v4.21.4](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.21.4/)
 - [kubectl](https://github.com/kubernetes/kubectl) [v1.34.4](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.21.4/)
 - [kustomize](https://github.com/kubernetes-sigs/kustomize) [v5.8.1](https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v5.8.1)
-- [helm](https://helm.sh/) [v3.17.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.17.1)
+- helm — available as both `helm3` and `helm4`; the bare `helm` command defaults to v4
+  - [helm3](https://helm.sh/) [v3.22.0-90](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.22.0-90)
+  - [helm4](https://helm.sh/) [v4.3.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/4.3.0)
 - [tekton](https://github.com/tektoncd/cli) [v1.20.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipelines/1.20.0/)
 - [knative](https://github.com/knative/client) [v1.15.0-6](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/1.15.0-6/)
 - [rhoas](https://github.com/redhat-developer/app-services-cli) [v0.53.0](https://github.com/redhat-developer/app-services-cli/tree/v0.53.0)

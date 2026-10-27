@@ -31,9 +31,14 @@ else
   append_ver "kustomize|${KUSTOMIZE_VER#v} |Kustomize CLI (built-in to kubectl)"
 fi
 
-if command -v helm &>/dev/null; then
-  HELM_VER=$(helm version --short --template '{{.Version}}' 2>/dev/null | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
-  append_ver "helm     |${HELM_VER#v}      |Helm CLI"
+if command -v helm3 &>/dev/null; then
+  HELM3_VER=$(helm3 version --short --template '{{.Version}}' 2>/dev/null | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
+  append_ver "helm3    |${HELM3_VER#v}     |Helm CLI v3"
+fi
+
+if command -v helm4 &>/dev/null; then
+  HELM4_VER=$(helm4 version --short --template '{{.Version}}' 2>/dev/null | grep -Eo 'v?[0-9]+\.[0-9]+\.[0-9]+')
+  append_ver "helm4    |${HELM4_VER#v}     |Helm CLI v4 (default 'helm')"
 fi
 
 if command -v kn &>/dev/null; then

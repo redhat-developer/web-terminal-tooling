@@ -41,11 +41,15 @@ RUN \
     ln -s /opt/kubevirt/virtctl /usr/local/bin/virtctl && \
     # install kustomize
     ln -s /opt/kustomize/kustomize /usr/local/bin/kustomize && \
+    # make the bare 'helm' command default to helm v4 (helm3/helm4 remain available explicitly)
+    ln -s /usr/local/bin/helm4 /usr/local/bin/helm && \
     # install bash completions
     kubectl completion bash > $COMPDIR/kubectl && \
     oc completion bash > $COMPDIR/oc && \
     kn completion bash > $COMPDIR/kn && \
     helm completion bash > $COMPDIR/helm && \
+    helm3 completion bash | sed 's/ helm$/ helm3/' > $COMPDIR/helm3 && \
+    helm4 completion bash | sed 's/ helm$/ helm4/' > $COMPDIR/helm4 && \
     tkn completion bash > $COMPDIR/tkn && \
     virtctl completion bash > $COMPDIR/virtctl && \
     rhoas completion bash > $COMPDIR/rhoas && \

@@ -46,13 +46,22 @@ echo "Extracted kubectl ${KUBECTL_VER}"
 
 rm -rf "${TMPDIR:?}"/*
 
-echo "Downloading helm ${HELM_VER}"
-curl -sSfL --insecure --remote-name-all \
-  "${OPENSHIFT_CLIENTS_URL}/helm/${HELM_VER}/sha256sum.txt" \
-  "${OPENSHIFT_CLIENTS_URL}/helm/${HELM_VER}/helm-linux-amd64"
-echo "$(grep helm-linux-amd64$ sha256sum.txt | cut -d' ' -f1) helm-linux-amd64" | sha256sum --check --status
-mv helm-linux-amd64 "$CONTAINER_USR_BIN_DIR/helm"
-rm -rf "${TMPDIR:?}"/*
+# Install helm v3 and v4 side-by-side as 'helm3' and 'helm4'. The bare 'helm'
+# command is symlinked to helm4 in the Dockerfile (helm v4 is the default as of
+# OCP 5.0). Both versions are published on the mirror as tarballs that extract
+# to a single 'helm-linux-amd64' binary.
+for helm_entry in "helm3:${HELM3_VER}" "helm4:${HELM4_VER}"; do
+  helm_name="${helm_entry%%:*}"
+  helm_ver="${helm_entry##*:}"
+  echo "Downloading ${helm_name} ${helm_ver}"
+  curl -sSfL --insecure --remote-name-all \
+    "${OPENSHIFT_CLIENTS_URL}/helm/${helm_ver}/sha256sum.txt" \
+    "${OPENSHIFT_CLIENTS_URL}/helm/${helm_ver}/helm-linux-amd64.tar.gz"
+  echo "$(grep "helm-linux-amd64.tar.gz$" sha256sum.txt | cut -d' ' -f1) helm-linux-amd64.tar.gz" | sha256sum --check --status
+  tar xzf helm-linux-amd64.tar.gz
+  mv helm-linux-amd64 "$CONTAINER_USR_BIN_DIR/${helm_name}"
+  rm -rf "${TMPDIR:?}"/*
+done
 
 echo "Downloading tekton ${TKN_VER}"
 curl -sSfL --insecure --remote-name-all \
@@ -112,7 +121,8 @@ rm -f rh-manifest.txt || true
   echo "oc ${OC_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
   echo "kubectl ${KUBECTL_VER} ${OPENSHIFT_CLIENTS_URL}/ocp/${OC_VER}"
   echo "kustomize ${KUSTOMIZE_VER} https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v${KUSTOMIZE_VER}"
-  echo "helm ${HELM_VER} ${OPENSHIFT_CLIENTS_URL}/helm/${HELM_VER}"
+  echo "helm3 ${HELM3_VER} ${OPENSHIFT_CLIENTS_URL}/helm/${HELM3_VER}"
+  echo "helm4 ${HELM4_VER} ${OPENSHIFT_CLIENTS_URL}/helm/${HELM4_VER}"
   echo "tekton ${TKN_VER} ${OPENSHIFT_CLIENTS_URL}/pipelines/${TKN_VER}"
   echo "knative ${KN_VER} ${OPENSHIFT_CLIENTS_URL}/serverless/${KN_VER}"
   echo "rhoas ${RHOAS_VER} https://github.com/redhat-developer/app-services-cli/tree/v${RHOAS_VER}"
