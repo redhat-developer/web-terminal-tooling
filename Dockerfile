@@ -42,6 +42,9 @@ RUN \
     # install kustomize
     ln -s /opt/kustomize/kustomize /usr/local/bin/kustomize && \
     # make the bare 'helm' command default to helm v4 (helm3/helm4 remain available explicitly)
+    # guard against a stale container-root tarball (rebuilt without ./build.sh -u), which would
+    # lack helm4 and still carry an old bare 'helm' binary, making the symlink fail confusingly
+    { test -x /usr/local/bin/helm4 || { echo "helm4 missing: please rebuild with ./build.sh -u" >&2; exit 1; }; } && \
     ln -s /usr/local/bin/helm4 /usr/local/bin/helm && \
     # install bash completions
     kubectl completion bash > $COMPDIR/kubectl && \
