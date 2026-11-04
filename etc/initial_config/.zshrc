@@ -51,3 +51,6 @@ fi
 PROMPT='%1N %~ %# '
 
 echo 'Welcome to the OpenShift Web Terminal. Type "help" for a list of installed CLI tools.'
+if command -v claude &>/dev/null; then
+  echo 'Claude Code is available. Type "claude" to start an AI-powered coding assistant.'
+fi
