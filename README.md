@@ -4,17 +4,17 @@ Default OpenShift Console Web Terminal tooling container.
 
 Includes tools that enable a Kubernetes and OpenShift developer to interact with their cluster:
 - [jq](https://github.com/stedolan/jq)
-- [oc](https://github.com/openshift/origin) [v4.22.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.22.1/)
-- [kubectl](https://github.com/kubernetes/kubectl) [v1.35.2](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.22.1/)
-- [kustomize](https://github.com/kubernetes-sigs/kustomize) [v5.8.1](https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v5.8.1)
+- [oc](https://github.com/openshift/origin) [v5.0.1](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/5.0.1/)
+- [kubectl](https://github.com/kubernetes/kubectl) [v1.36.2](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/5.0.1/)
+- [kustomize](https://github.com/kubernetes-sigs/kustomize) [v5.8.3](https://github.com/kubernetes-sigs/kustomize/tree/kustomize/v5.8.3)
 - helm — available as both `helm3` and `helm4`; the bare `helm` command defaults to v4
   - [helm3](https://helm.sh/) [v3.22.0-90](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/3.22.0-90)
   - [helm4](https://helm.sh/) [v4.3.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/helm/4.3.0)
 - [tekton](https://github.com/tektoncd/cli) [v1.20.0](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/pipelines/1.20.0/)
 - [knative](https://github.com/knative/client) [v1.15.0-6](https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/serverless/1.15.0-6/)
 - [rhoas](https://github.com/redhat-developer/app-services-cli) [v0.53.0](https://github.com/redhat-developer/app-services-cli/tree/v0.53.0)
-- [submariner](https://github.com/submariner-io/submariner) [v0.24.0](https://github.com/submariner-io/subctl/tree/v0.24.0)
-- [kubevirt](https://github.com/kubevirt/kubevirt) [v1.8.4](https://github.com/kubevirt/kubevirt/tree/v1.8.4)
+- [submariner](https://github.com/submariner-io/submariner) [v0.25.0](https://github.com/submariner-io/subctl/tree/v0.25.0)
+- [kubevirt](https://github.com/kubevirt/kubevirt) [v1.9.1](https://github.com/kubevirt/kubevirt/tree/v1.9.1)
 
 ## Contributing
 
